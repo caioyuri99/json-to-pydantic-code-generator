@@ -3,13 +3,16 @@ import type { ClassAttribute } from "./interfaces/ClassAttribute.interface";
 
 export function generatePydanticCode(json: any): string {
   const generatedClasses = generateClasses(json);
-  const classes = generatedClasses.map(generateClass).join("\n\n");
-  const importLines = [
-    "from pydantic import BaseModel",
-    getTypingImports(classes)
-  ];
+  const classes = generatedClasses.map(generateClass).join("\n\n\n");
+  const importLines = ["from pydantic import BaseModel"];
 
-  return `${importLines.join("\n\n")}\n\n${classes}`;
+  const typingImports = getTypingImports(classes);
+
+  if (typingImports) {
+    importLines.push(typingImports);
+  }
+
+  return `${importLines.join("\n\n")}\n\n\n${classes}`;
 }
 
 function generateClasses(json: any, name: string = "Model"): ClassModel[] {
@@ -84,8 +87,66 @@ function generateClasses(json: any, name: string = "Model"): ClassModel[] {
       const processedArray = processArray(value, capitalize(key));
 
       if (Array.isArray(processedArray)) {
-        res.push(...processedArray);
-        obj.attributes.push({ name: key, type: `List[${capitalize(key)}]` });
+        for (const [index, generatedClass] of processedArray.entries()) {
+          const existingClassWithSameAttrs = res.find(
+            (c) =>
+              c.attributes.length === generatedClass.attributes.length &&
+              c.attributes.every((attr) =>
+                generatedClass.attributes.find(
+                  (a) => a.name === attr.name && a.type === attr.type
+                )
+              )
+          );
+
+          if (existingClassWithSameAttrs) {
+            for (let i = index + 1; i < processedArray.length; i++) {
+              for (const attr of processedArray[i].attributes) {
+                if (attr.type === generatedClass.className) {
+                  attr.type = existingClassWithSameAttrs.className;
+                }
+              }
+            }
+
+            generatedClass.className = existingClassWithSameAttrs.className;
+          } else {
+            const existingClass = res.find(
+              (c) => c.className === generatedClass.className
+            );
+
+            if (!existingClass) {
+              res.push(generatedClass);
+            } else {
+              let i = 1;
+              let newClassName = `${generatedClass.className}${i}`;
+
+              while (res.find((c) => c.className === newClassName)) {
+                i++;
+                newClassName = `${generatedClass.className}${i}`;
+              }
+
+              for (let i = index + 1; i < processedArray.length; i++) {
+                for (const attr of processedArray[i].attributes) {
+                  if (attr.type === `List[${generatedClass.className}]`) {
+                    attr.type = `List[${newClassName}]`;
+                  }
+                }
+              }
+
+              generatedClass.className = newClassName;
+
+              res.push(generatedClass);
+            }
+          }
+        }
+
+        const lastGeneratedClass = processedArray.at(-1);
+
+        if (lastGeneratedClass) {
+          obj.attributes.push({
+            name: key,
+            type: `List[${lastGeneratedClass.className}]`
+          });
+        }
       } else {
         obj.attributes.push(processedArray);
       }
