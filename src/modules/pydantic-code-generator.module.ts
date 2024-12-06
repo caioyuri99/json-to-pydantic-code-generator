@@ -1,0 +1,244 @@
+import { ClassAttribute } from "../interfaces/ClassAttribute.interface";
+import { ClassModel } from "../interfaces/ClassModel.interface";
+
+export function generatePydanticCode(json: any): string {
+  const generatedClasses = generateClasses(json);
+  const classes = generatedClasses.map(generateClass).join("\n\n");
+  const importLines = [
+    "from pydantic import BaseModel",
+    getTypingImports(classes)
+  ];
+
+  return `${importLines.join("\n\n")}\n\n${classes}`;
+}
+
+function generateClasses(json: any, name: string = "Model"): ClassModel[] {
+  const res: ClassModel[] = [];
+  const obj: ClassModel = { className: name, attributes: [] };
+
+  for (const [key, value] of Object.entries(json)) {
+    if (key === "pageable") {
+      console.log("sort", value);
+    }
+
+    if (value && typeof value === "object" && !Array.isArray(value)) {
+      const generatedClasses = generateClasses(value, capitalize(key));
+
+      for (const [index, generatedClass] of generatedClasses.entries()) {
+        const existingClassWithSameAttrs = res.find(
+          (c) =>
+            c.attributes.length === generatedClass.attributes.length &&
+            c.attributes.every((attr) =>
+              generatedClass.attributes.find(
+                (a) => a.name === attr.name && a.type === attr.type
+              )
+            )
+        );
+
+        if (existingClassWithSameAttrs) {
+          for (let i = index + 1; i < generatedClasses.length; i++) {
+            for (const attr of generatedClasses[i].attributes) {
+              if (attr.type === generatedClass.className) {
+                attr.type = existingClassWithSameAttrs.className;
+              }
+            }
+          }
+
+          generatedClass.className = existingClassWithSameAttrs.className;
+        } else {
+          const existingClass = res.find(
+            (c) => c.className === generatedClass.className
+          );
+
+          if (!existingClass) {
+            res.push(generatedClass);
+          } else {
+            let i = 1;
+            let newClassName = `${generatedClass.className}${i}`;
+
+            while (res.find((c) => c.className === newClassName)) {
+              i++;
+              newClassName = `${generatedClass.className}${i}`;
+            }
+
+            for (let i = index + 1; i < generatedClasses.length; i++) {
+              for (const attr of generatedClasses[i].attributes) {
+                if (attr.type === generatedClass.className) {
+                  attr.type = newClassName;
+                }
+              }
+            }
+
+            generatedClass.className = newClassName;
+
+            res.push(generatedClass);
+          }
+        }
+      }
+
+      const lastGeneratedClass = generatedClasses.at(-1);
+
+      if (lastGeneratedClass) {
+        obj.attributes.push({
+          name: key,
+          type: lastGeneratedClass.className
+        });
+      }
+    } else if (Array.isArray(value)) {
+      const processedArray = processArray(value, capitalize(key));
+
+      if (Array.isArray(processedArray)) {
+        res.push(...processedArray);
+        obj.attributes.push({ name: key, type: `List[${capitalize(key)}]` });
+      } else {
+        obj.attributes.push(processedArray);
+      }
+    } else {
+      obj.attributes.push({ name: key, type: getTipe(value) });
+    }
+  }
+
+  res.push(obj);
+
+  return res;
+}
+
+function processArray(
+  value: any[],
+  name: string = "Model"
+): ClassModel[] | ClassAttribute {
+  const firstType = getTipe(value[0]);
+
+  if (!value.every((v) => getTipe(v) === firstType)) {
+    return { name, type: "List[Any]" };
+  }
+
+  if (value[0] && typeof value[0] === "object") {
+    const res: ClassModel[] = [];
+
+    value.forEach((v) => {
+      res.push(...generateClasses(v, name));
+    });
+
+    return mergeObjects(res);
+  }
+
+  return { name, type: `List[${firstType}]` };
+}
+
+function mergeObjects(objects: ClassModel[]): ClassModel[] {
+  const res: ClassModel[] = [];
+
+  for (const obj of objects) {
+    const existingObj = res.find((o) => o.className === obj.className);
+
+    if (!existingObj) {
+      res.push(obj);
+    } else {
+      for (const attr of obj.attributes) {
+        const existingAttr = existingObj.attributes.find(
+          (a) => a.name === attr.name
+        );
+
+        if (!existingAttr) {
+          existingObj.attributes.push(attr);
+        } else {
+          const existingTypes = new Set(
+            existingAttr.type
+              .replace("Optional[", "")
+              .replace("]", "")
+              .replace("Union[", "")
+              .replace("]", "")
+              .split(", ")
+          );
+
+          existingTypes.add(attr.type);
+
+          if (existingAttr.type.includes("Optional")) {
+            existingTypes.add("Any");
+          }
+
+          if (existingTypes.has("Any") && existingTypes.size === 2) {
+            existingTypes.delete("Any");
+
+            existingAttr.type = `Optional[${[...existingTypes]
+              .sort()
+              .join(", ")}]`;
+          } else if (existingTypes.has("Any") && existingTypes.size > 2) {
+            existingTypes.delete("Any");
+
+            existingAttr.type = `Optional[Union[${[...existingTypes]
+              .sort()
+              .join(", ")}]]`;
+          } else if (existingTypes.size > 1) {
+            existingAttr.type = `Union[${[...existingTypes]
+              .sort()
+              .join(", ")}]`;
+          } else {
+            existingAttr.type = [...existingTypes][0];
+          }
+        }
+      }
+    }
+  }
+
+  return res;
+}
+
+function generateClass(obj: ClassModel): string {
+  const attributes = obj.attributes
+    .map((attr) => `  ${attr.name}: ${attr.type}`)
+    .join("\n");
+
+  return `class ${obj.className}(BaseModel):\n${attributes}`;
+}
+
+function getTipe(value: any): string {
+  if (typeof value === "string") {
+    return "str";
+  }
+
+  if (typeof value === "number" && Number.isInteger(value)) {
+    return "int";
+  }
+
+  if (typeof value === "number") {
+    return "float";
+  }
+
+  if (typeof value === "boolean") {
+    return "bool";
+  }
+
+  return "Any";
+}
+
+function capitalize(s: string): string {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+function getTypingImports(s: string): string {
+  const types = [];
+
+  if (s.match(/Any/g)) {
+    types.push("Any");
+  }
+
+  if (s.match(/List\[[^\]]+\]/g)) {
+    types.push("List");
+  }
+
+  if (s.match(/Optional\[[^\]]+\]/g)) {
+    types.push("Optional");
+  }
+
+  if (s.match(/Union\[[^\]]+\]/g)) {
+    types.push("Union");
+  }
+
+  if (types.length === 0) {
+    return "";
+  }
+
+  return `from typing import ${types.join(", ")}`;
+}
