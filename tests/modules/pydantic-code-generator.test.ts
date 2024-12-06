@@ -1,4 +1,7 @@
-import { generatePydanticCode } from "../../src/modules/pydantic-code-generator.module";
+import {
+  generatePydanticCode,
+  mergeTypes
+} from "../../src/modules/pydantic-code-generator/pydantic-code-generator.module";
 
 describe("pydantic-code-generator", () => {
   describe("generatePydanticCode", () => {
@@ -139,6 +142,36 @@ class Model(BaseModel):
       const result = generatePydanticCode(json);
 
       expect(result).toBe(expected);
+    });
+  });
+
+  describe("mergeTypes", () => {
+    test("Any and generic type", () => {
+      expect(mergeTypes("Any", "Type")).toBe("Optional[Type]");
+    });
+
+    test("Any and Any", () => {
+      expect(mergeTypes("Any", "Any")).toBe("Any");
+    });
+
+    test("equal types", () => {
+      expect(mergeTypes("Type", "Type")).toBe("Type");
+    });
+
+    test("different types", () => {
+      expect(mergeTypes("Type1", "Type2")).toBe("Union[Type1, Type2]");
+    });
+
+    test("Union and Any", () => {
+      expect(mergeTypes("Union[Type1, Type2]", "Any")).toBe(
+        "Optional[Union[Type1, Type2]]"
+      );
+    });
+
+    test("Union and generic type", () => {
+      expect(mergeTypes("Union[Type1, Type2]", "Type3")).toBe(
+        "Union[Type1, Type2, Type3]"
+      );
     });
   });
 });

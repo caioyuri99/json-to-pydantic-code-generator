@@ -1,5 +1,6 @@
 import type { ClassModel } from "./interfaces/ClassModel.interface";
 import type { ClassAttribute } from "./interfaces/ClassAttribute.interface";
+import { removeOptionalAndUnion } from "../utils/utils.module";
 
 export function generatePydanticCode(json: any): string {
   const generatedClasses = generateClasses(json);
@@ -200,46 +201,43 @@ function mergeObjects(objects: ClassModel[]): ClassModel[] {
         if (!existingAttr) {
           existingObj.attributes.push(attr);
         } else {
-          const existingTypes = new Set(
-            existingAttr.type
-              .replace("Optional[", "")
-              .replace("]", "")
-              .replace("Union[", "")
-              .replace("]", "")
-              .split(", ")
-          );
-
-          existingTypes.add(attr.type);
-
-          if (existingAttr.type.includes("Optional")) {
-            existingTypes.add("Any");
-          }
-
-          if (existingTypes.has("Any") && existingTypes.size === 2) {
-            existingTypes.delete("Any");
-
-            existingAttr.type = `Optional[${[...existingTypes]
-              .sort()
-              .join(", ")}]`;
-          } else if (existingTypes.has("Any") && existingTypes.size > 2) {
-            existingTypes.delete("Any");
-
-            existingAttr.type = `Optional[Union[${[...existingTypes]
-              .sort()
-              .join(", ")}]]`;
-          } else if (existingTypes.size > 1) {
-            existingAttr.type = `Union[${[...existingTypes]
-              .sort()
-              .join(", ")}]`;
-          } else {
-            existingAttr.type = [...existingTypes][0];
-          }
+          existingAttr.type = mergeTypes(existingAttr.type, attr.type);
         }
       }
     }
   }
 
   return res;
+}
+
+export function mergeTypes(oldTypes: string, typeToAdd: string): string {
+  const existingTypes = new Set(removeOptionalAndUnion(oldTypes).split(", "));
+
+  existingTypes.add(typeToAdd);
+
+  if (oldTypes.includes("Optional")) {
+    existingTypes.add("Any");
+  }
+
+  if (existingTypes.has("Any")) {
+    existingTypes.delete("Any");
+
+    if (existingTypes.size > 1) {
+      return `Optional[Union[${[...existingTypes].sort().join(", ")}]]`;
+    }
+
+    if (existingTypes.size === 1) {
+      return `Optional[${[...existingTypes][0]}]`;
+    }
+
+    return "Any";
+  }
+
+  if (existingTypes.size > 1) {
+    return `Union[${[...existingTypes].sort().join(", ")}]`;
+  }
+
+  return [...existingTypes][0];
 }
 
 function generateClass(obj: ClassModel): string {
