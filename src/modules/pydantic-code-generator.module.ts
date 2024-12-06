@@ -1,5 +1,5 @@
-import { ClassAttribute } from "../interfaces/ClassAttribute.interface";
-import { ClassModel } from "../interfaces/ClassModel.interface";
+import type { ClassModel } from "./interfaces/ClassModel.interface";
+import type { ClassAttribute } from "./interfaces/ClassAttribute.interface";
 
 export function generatePydanticCode(json: any): string {
   const generatedClasses = generateClasses(json);
@@ -17,7 +17,6 @@ function generateClasses(json: any, name: string = "Model"): ClassModel[] {
   const obj: ClassModel = { className: name, attributes: [] };
 
   for (const [key, value] of Object.entries(json)) {
-
     if (value && typeof value === "object" && !Array.isArray(value)) {
       const generatedClasses = generateClasses(value, capitalize(key));
 
@@ -214,7 +213,7 @@ function capitalize(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
-function getTypingImports(s: string): string {
+export function getTypingImports(s: string): string {
   const types = [];
 
   if (s.match(/Any/g)) {
