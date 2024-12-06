@@ -17,9 +17,6 @@ function generateClasses(json: any, name: string = "Model"): ClassModel[] {
   const obj: ClassModel = { className: name, attributes: [] };
 
   for (const [key, value] of Object.entries(json)) {
-    if (key === "pageable") {
-      console.log("sort", value);
-    }
 
     if (value && typeof value === "object" && !Array.isArray(value)) {
       const generatedClasses = generateClasses(value, capitalize(key));
