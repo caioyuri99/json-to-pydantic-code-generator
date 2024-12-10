@@ -1,6 +1,6 @@
 import type { ClassModel } from "./interfaces/ClassModel.interface";
 import type { ClassAttribute } from "./interfaces/ClassAttribute.interface";
-import { removeOptionalAndUnion } from "../utils/utils.module";
+import { removeOptionalAndUnion, uniqueElements } from "../utils/utils.module";
 
 export function generatePydanticCode(json: any): string {
   const generatedClasses = generateClasses(json);
@@ -184,11 +184,23 @@ function processArray(
   return { name, type: `List[${firstType}]` };
 }
 
-function mergeObjects(objects: ClassModel[]): ClassModel[] {
+export function mergeObjects(objects: ClassModel[]): ClassModel[] {
   const res: ClassModel[] = [];
 
   for (const obj of objects) {
-    const existingObj = res.find((o) => o.className === obj.className);
+    const optionalAttrs = uniqueElements(
+      objects
+        .filter((c) => c.className === obj.className)
+        .map((e) => e.attributes.map((a) => a.name))
+    );
+
+    for (const attr of obj.attributes) {
+      if (optionalAttrs.includes(attr.name)) {
+        attr.type = `Optional[${attr.type}]`;
+      }
+    }
+
+    const existingObj = res.find((e) => e.className === obj.className);
 
     if (!existingObj) {
       res.push(obj);
@@ -213,9 +225,11 @@ function mergeObjects(objects: ClassModel[]): ClassModel[] {
 export function mergeTypes(oldTypes: string, typeToAdd: string): string {
   const existingTypes = new Set(removeOptionalAndUnion(oldTypes).split(", "));
 
-  existingTypes.add(typeToAdd);
+  removeOptionalAndUnion(typeToAdd)
+    .split(", ")
+    .forEach((e) => existingTypes.add(e));
 
-  if (oldTypes.includes("Optional")) {
+  if (oldTypes.includes("Optional") || typeToAdd.includes("Optional")) {
     existingTypes.add("Any");
   }
 

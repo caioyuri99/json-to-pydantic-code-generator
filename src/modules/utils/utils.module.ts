@@ -9,3 +9,20 @@ export function removeOptionalAndUnion(s: string): string {
 
   return result;
 }
+
+export function uniqueElements<T>(listas: T[][]): T[] {
+  const todosOsElementos = new Set(listas.flat());
+
+  const frequencia = new Map<T, number>();
+  todosOsElementos.forEach((elemento) => {
+    const count = listas.reduce(
+      (acc, lista) => acc + (lista.includes(elemento) ? 1 : 0),
+      0
+    );
+    frequencia.set(elemento, count);
+  });
+
+  return Array.from(frequencia.entries())
+    .filter(([_, count]) => count < listas.length)
+    .map(([elemento, _]) => elemento);
+}

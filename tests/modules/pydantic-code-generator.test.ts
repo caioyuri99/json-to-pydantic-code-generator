@@ -1,5 +1,7 @@
+import { ClassModel } from "../../src/modules/pydantic-code-generator/interfaces/ClassModel.interface";
 import {
   generatePydanticCode,
+  mergeObjects,
   mergeTypes
 } from "../../src/modules/pydantic-code-generator/pydantic-code-generator.module";
 
@@ -146,32 +148,152 @@ class Model(BaseModel):
   });
 
   describe("mergeTypes", () => {
-    test("Any and generic type", () => {
-      expect(mergeTypes("Any", "Type")).toBe("Optional[Type]");
-    });
-
-    test("Any and Any", () => {
-      expect(mergeTypes("Any", "Any")).toBe("Any");
-    });
-
-    test("equal types", () => {
-      expect(mergeTypes("Type", "Type")).toBe("Type");
-    });
-
-    test("different types", () => {
-      expect(mergeTypes("Type1", "Type2")).toBe("Union[Type1, Type2]");
-    });
-
-    test("Union and Any", () => {
-      expect(mergeTypes("Union[Type1, Type2]", "Any")).toBe(
-        "Optional[Union[Type1, Type2]]"
+    test("must return the same type when types are equal", () => {
+      expect(mergeTypes("int", "int")).toBe("int");
+      expect(mergeTypes("str", "str")).toBe("str");
+      expect(mergeTypes("Optional[int]", "Optional[int]")).toBe(
+        "Optional[int]"
       );
     });
 
-    test("Union and generic type", () => {
-      expect(mergeTypes("Union[Type1, Type2]", "Type3")).toBe(
-        "Union[Type1, Type2, Type3]"
+    test("should return Optional[Type] when one of the types is Any", () => {
+      expect(mergeTypes("Any", "int")).toBe("Optional[int]");
+      expect(mergeTypes("str", "Any")).toBe("Optional[str]");
+      expect(mergeTypes("Optional[Any]", "int")).toBe("Optional[int]");
+    });
+
+    test("should return Union[Type1, Type2] when types are different", () => {
+      expect(mergeTypes("int", "str")).toBe("Union[int, str]");
+      expect(mergeTypes("bool", "float")).toBe("Union[bool, float]");
+    });
+
+    test("must handle Optional correctly", () => {
+      expect(mergeTypes("Optional[int]", "int")).toBe("Optional[int]");
+      expect(mergeTypes("Optional[int]", "Optional[str]")).toBe(
+        "Optional[Union[int, str]]"
       );
+    });
+
+    test("must handle Union correctly", () => {
+      expect(mergeTypes("Union[int, str]", "int")).toBe("Union[int, str]");
+      expect(mergeTypes("Union[str, int]", "float")).toBe(
+        "Union[float, int, str]"
+      );
+      expect(mergeTypes("Optional[Union[str, int]]", "int")).toBe(
+        "Optional[Union[int, str]]"
+      );
+    });
+
+    test("must handle combinations of Optional and Union", () => {
+      expect(mergeTypes("Optional[int]", "Union[str, int]")).toBe(
+        "Optional[Union[int, str]]"
+      );
+      expect(mergeTypes("Optional[Union[int, str]]", "Optional[float]")).toBe(
+        "Optional[Union[float, int, str]]"
+      );
+    });
+  });
+
+  describe("mergeObjects", () => {
+    test("empty input", () => {
+      const objects: ClassModel[] = [];
+
+      expect(mergeObjects(objects)).toEqual([]);
+    });
+
+    test("no duplication", () => {
+      const objects: ClassModel[] = [
+        { className: "User", attributes: [{ name: "id", type: "int" }] },
+        {
+          className: "Product",
+          attributes: [{ name: "price", type: "float" }]
+        }
+      ];
+
+      expect(mergeObjects(objects)).toEqual(expect.arrayContaining(objects));
+    });
+
+    test("identical classes with different attributes", () => {
+      const objects: ClassModel[] = [
+        { className: "User", attributes: [{ name: "id", type: "int" }] },
+        { className: "User", attributes: [{ name: "email", type: "str" }] }
+      ];
+
+      const expected: ClassModel[] = [
+        {
+          className: "User",
+          attributes: [
+            { name: "id", type: "Optional[int]" },
+            { name: "email", type: "Optional[str]" }
+          ]
+        }
+      ];
+
+      expect(mergeObjects(objects)).toEqual(expect.arrayContaining(expected));
+    });
+
+    test("duplicate attributes and conflicting types", () => {
+      const objects: ClassModel[] = [
+        { className: "User", attributes: [{ name: "id", type: "int" }] },
+        { className: "User", attributes: [{ name: "id", type: "str" }] }
+      ];
+
+      const expected: ClassModel[] = [
+        {
+          className: "User",
+          attributes: [{ name: "id", type: "Union[int, str]" }]
+        }
+      ];
+
+      expect(mergeObjects(objects)).toEqual(expect.arrayContaining(expected));
+    });
+
+    test("multiple classes with partial merging", () => {
+      const objects: ClassModel[] = [
+        { className: "User", attributes: [{ name: "id", type: "int" }] },
+        { className: "User", attributes: [{ name: "email", type: "str" }] },
+        {
+          className: "Product",
+          attributes: [{ name: "price", type: "float" }]
+        }
+      ];
+
+      const expected: ClassModel[] = [
+        {
+          className: "User",
+          attributes: [
+            { name: "id", type: "Optional[int]" },
+            { name: "email", type: "Optional[str]" }
+          ]
+        },
+        {
+          className: "Product",
+          attributes: [{ name: "price", type: "float" }]
+        }
+      ];
+
+      expect(mergeObjects(objects)).toEqual(expect.arrayContaining(expected));
+    });
+
+    test("multiple levels of duplication", () => {
+      const objects: ClassModel[] = [
+        { className: "User", attributes: [{ name: "id", type: "int" }] },
+        { className: "User", attributes: [{ name: "email", type: "str" }] },
+        { className: "User", attributes: [{ name: "email", type: "str" }] },
+        { className: "User", attributes: [{ name: "id", type: "int" }] }
+      ];
+
+      const expected: ClassModel[] = [
+        {
+          className: "User",
+          attributes: [
+            { name: "id", type: "Optional[int]" },
+            { name: "email", type: "Optional[str]" }
+          ]
+        }
+      ];
+
+      expect(mergeObjects(objects)).toEqual(expected);
     });
   });
 });
