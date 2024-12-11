@@ -1,7 +1,7 @@
 import { ClassModel } from "../../src/modules/pydantic-code-generator/interfaces/ClassModel.interface";
 import {
   generatePydanticCode,
-  mergeObjects,
+  mergeClasses,
   mergeTypes
 } from "../../src/modules/pydantic-code-generator/pydantic-code-generator.module";
 
@@ -194,11 +194,11 @@ class Model(BaseModel):
     });
   });
 
-  describe("mergeObjects", () => {
+  describe("mergeClasses", () => {
     test("empty input", () => {
       const objects: ClassModel[] = [];
 
-      expect(mergeObjects(objects)).toEqual([]);
+      expect(mergeClasses(objects)).toEqual([]);
     });
 
     test("no duplication", () => {
@@ -210,7 +210,7 @@ class Model(BaseModel):
         }
       ];
 
-      expect(mergeObjects(objects)).toEqual(expect.arrayContaining(objects));
+      expect(mergeClasses(objects)).toEqual(expect.arrayContaining(objects));
     });
 
     test("identical classes with different attributes", () => {
@@ -229,7 +229,7 @@ class Model(BaseModel):
         }
       ];
 
-      expect(mergeObjects(objects)).toEqual(expect.arrayContaining(expected));
+      expect(mergeClasses(objects)).toEqual(expect.arrayContaining(expected));
     });
 
     test("duplicate attributes and conflicting types", () => {
@@ -245,7 +245,7 @@ class Model(BaseModel):
         }
       ];
 
-      expect(mergeObjects(objects)).toEqual(expect.arrayContaining(expected));
+      expect(mergeClasses(objects)).toEqual(expect.arrayContaining(expected));
     });
 
     test("multiple classes with partial merging", () => {
@@ -272,7 +272,7 @@ class Model(BaseModel):
         }
       ];
 
-      expect(mergeObjects(objects)).toEqual(expect.arrayContaining(expected));
+      expect(mergeClasses(objects)).toEqual(expect.arrayContaining(expected));
     });
 
     test("multiple levels of duplication", () => {
@@ -293,7 +293,7 @@ class Model(BaseModel):
         }
       ];
 
-      expect(mergeObjects(objects)).toEqual(expected);
+      expect(mergeClasses(objects)).toEqual(expected);
     });
   });
 });
