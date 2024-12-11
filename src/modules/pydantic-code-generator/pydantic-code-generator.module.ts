@@ -1,6 +1,10 @@
 import type { ClassModel } from "./interfaces/ClassModel.interface";
 import type { ClassAttribute } from "./interfaces/ClassAttribute.interface";
-import { removeOptionalAndUnion, uniqueElements } from "../utils/utils.module";
+import {
+  capitalize,
+  removeOptionalAndUnion,
+  uniqueElements
+} from "../utils/utils.module";
 
 export function generatePydanticCode(json: any): string {
   const generatedClasses = generateClasses(json);
@@ -178,48 +182,56 @@ function processArray(
       res.push(...generateClasses(v, name));
     });
 
-    return mergeObjects(res);
+    return mergeClasses(res);
   }
 
   return { name, type: `List[${firstType}]` };
 }
 
-export function mergeObjects(objects: ClassModel[]): ClassModel[] {
+export function mergeClasses(classes: ClassModel[]): ClassModel[] {
   const res: ClassModel[] = [];
 
-  for (const obj of objects) {
-    const optionalAttrs = uniqueElements(
-      objects
-        .filter((c) => c.className === obj.className)
-        .map((e) => e.attributes.map((a) => a.name))
-    );
+  for (const classModel of classes) {
+    setOptional(classes, classModel);
 
-    for (const attr of obj.attributes) {
-      if (optionalAttrs.includes(attr.name)) {
-        attr.type = `Optional[${attr.type}]`;
-      }
-    }
+    const existingClass = res.find((e) => e.className === classModel.className);
 
-    const existingObj = res.find((e) => e.className === obj.className);
-
-    if (!existingObj) {
-      res.push(obj);
+    if (existingClass) {
+      mergeAttributes(classModel, existingClass);
     } else {
-      for (const attr of obj.attributes) {
-        const existingAttr = existingObj.attributes.find(
-          (a) => a.name === attr.name
-        );
-
-        if (!existingAttr) {
-          existingObj.attributes.push(attr);
-        } else {
-          existingAttr.type = mergeTypes(existingAttr.type, attr.type);
-        }
-      }
+      res.push(classModel);
     }
   }
 
   return res;
+}
+
+function setOptional(classes: ClassModel[], classModel: ClassModel) {
+  const optionalAttrs = uniqueElements(
+    classes
+      .filter((c) => c.className === classModel.className)
+      .map((e) => e.attributes.map((a) => a.name))
+  );
+
+  for (const attr of classModel.attributes) {
+    if (optionalAttrs.includes(attr.name)) {
+      attr.type = `Optional[${attr.type}]`;
+    }
+  }
+}
+
+function mergeAttributes(classModel: ClassModel, existingClass: ClassModel) {
+  for (const attr of classModel.attributes) {
+    const existingAttr = existingClass.attributes.find(
+      (a) => a.name === attr.name
+    );
+
+    if (existingAttr) {
+      existingAttr.type = mergeTypes(existingAttr.type, attr.type);
+    } else {
+      existingClass.attributes.push(attr);
+    }
+  }
 }
 
 export function mergeTypes(oldTypes: string, typeToAdd: string): string {
@@ -280,10 +292,6 @@ function getTipe(value: any): string {
   }
 
   return "Any";
-}
-
-function capitalize(s: string): string {
-  return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
 export function getTypingImports(s: string): string {

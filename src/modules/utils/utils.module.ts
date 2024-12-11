@@ -26,3 +26,7 @@ export function uniqueElements<T>(listas: T[][]): T[] {
     .filter(([_, count]) => count < listas.length)
     .map(([elemento, _]) => elemento);
 }
+
+export function capitalize(s: string): string {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
