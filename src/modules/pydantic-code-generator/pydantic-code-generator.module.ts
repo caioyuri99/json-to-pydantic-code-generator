@@ -297,7 +297,7 @@ function getTipe(value: any): string {
 export function getTypingImports(s: string): string {
   const types = [];
 
-  if (s.match(/Any/g)) {
+  if (s.match(/(?<=^|\s)Any(?=\s|$|\])|\[Any\]/g)) {
     types.push("Any");
   }
 
