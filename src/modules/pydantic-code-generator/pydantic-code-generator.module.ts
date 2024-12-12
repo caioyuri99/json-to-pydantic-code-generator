@@ -274,7 +274,7 @@ function generateClass(obj: ClassModel): string {
   return `class ${obj.className}(BaseModel):\n${attributes}`;
 }
 
-function getTipe(value: any): string {
+export function getType(value: any): string {
   if (typeof value === "string") {
     return "str";
   }
