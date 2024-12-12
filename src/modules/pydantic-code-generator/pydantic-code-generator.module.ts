@@ -156,7 +156,7 @@ function generateClasses(json: any, name: string = "Model"): ClassModel[] {
         obj.attributes.push(processedArray);
       }
     } else {
-      obj.attributes.push({ name: key, type: getTipe(value) });
+      obj.attributes.push({ name: key, type: getType(value) });
     }
   }
 
@@ -169,9 +169,9 @@ function processArray(
   value: any[],
   name: string = "Model"
 ): ClassModel[] | ClassAttribute {
-  const firstType = getTipe(value[0]);
+  const firstType = getType(value[0]);
 
-  if (!value.every((v) => getTipe(v) === firstType)) {
+  if (!value.every((v) => getType(v) === firstType)) {
     return { name, type: "List[Any]" };
   }
 
