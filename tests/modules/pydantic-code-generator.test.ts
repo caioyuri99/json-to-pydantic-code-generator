@@ -4,6 +4,7 @@ import {
   mergeClasses,
   mergeTypes
 } from "../../src/modules/pydantic-code-generator/pydantic-code-generator.module";
+import { dedent } from "../../src/modules/utils/utils.module";
 
 describe("pydantic-code-generator", () => {
   describe("generatePydanticCode", () => {
@@ -16,18 +17,20 @@ describe("pydantic-code-generator", () => {
           street: "Wall Street"
         }
       };
-      const expected = `from pydantic import BaseModel
+      const expected = dedent`
+        from pydantic import BaseModel
 
 
-class Address(BaseModel):
-  city: str
-  street: str
+        class Address(BaseModel):
+          city: str
+          street: str
 
 
-class Model(BaseModel):
-  name: str
-  age: int
-  address: Address`;
+        class Model(BaseModel):
+          name: str
+          age: int
+          address: Address
+      `;
 
       const result = generatePydanticCode(json);
 
@@ -54,32 +57,34 @@ class Model(BaseModel):
         }
       };
 
-      const expected = `from pydantic import BaseModel
+      const expected = dedent`
+        from pydantic import BaseModel
 
-from typing import List
-
-
-class Sort(BaseModel):
-  direction: str
+        from typing import List
 
 
-class Content(BaseModel):
-  id: int
-  sort: Sort
+        class Sort(BaseModel):
+          direction: str
 
 
-class Sort1(BaseModel):
-  sorted: bool
+        class Content(BaseModel):
+          id: int
+          sort: Sort
 
 
-class Pageable(BaseModel):
-  sort: Sort1
+        class Sort1(BaseModel):
+          sorted: bool
 
 
-class Model(BaseModel):
-  content: List[Content]
-  pageable: Pageable
-  sort: Sort1`;
+        class Pageable(BaseModel):
+          sort: Sort1
+
+
+        class Model(BaseModel):
+          content: List[Content]
+          pageable: Pageable
+          sort: Sort1
+      `;
 
       const result = generatePydanticCode(json);
 
@@ -114,32 +119,34 @@ class Model(BaseModel):
         ]
       };
 
-      const expected = `from pydantic import BaseModel
+      const expected = dedent`
+        from pydantic import BaseModel
 
-from typing import List
-
-
-class Sort(BaseModel):
-  direction: str
+        from typing import List
 
 
-class Content(BaseModel):
-  id: int
-  sort: List[Sort]
+        class Sort(BaseModel):
+          direction: str
 
 
-class Sort1(BaseModel):
-  sorted: bool
+        class Content(BaseModel):
+          id: int
+          sort: List[Sort]
 
 
-class Pageable(BaseModel):
-  sort: List[Sort1]
+        class Sort1(BaseModel):
+          sorted: bool
 
 
-class Model(BaseModel):
-  content: List[Content]
-  pageable: List[Pageable]
-  sort: List[Sort1]`;
+        class Pageable(BaseModel):
+          sort: List[Sort1]
+
+
+        class Model(BaseModel):
+          content: List[Content]
+          pageable: List[Pageable]
+          sort: List[Sort1]
+      `;
 
       const result = generatePydanticCode(json);
 
