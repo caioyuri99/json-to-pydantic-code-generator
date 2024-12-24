@@ -8,7 +8,7 @@ import {
 
 export function generatePydanticCode(json: any): string {
   const generatedClasses = generateClasses(json);
-  const classes = generatedClasses.map(generateClass).join("\n\n\n");
+  const classes = generatedClasses.map((e) => generateClass(e)).join("\n\n\n");
   const importLines = ["from pydantic import BaseModel"];
 
   const typingImports = getTypingImports(classes);
@@ -266,12 +266,15 @@ export function mergeTypes(oldTypes: string, typeToAdd: string): string {
   return [...existingTypes][0];
 }
 
-function generateClass(obj: ClassModel): string {
+export function generateClass(
+  obj: ClassModel,
+  indentation: number = 2
+): string {
   const attributes = obj.attributes
-    .map((attr) => `  ${attr.name}: ${attr.type}`)
+    .map((attr) => `${" ".repeat(indentation)}${attr.name}: ${attr.type}`)
     .join("\n");
 
-  return `class ${obj.className}(BaseModel):\n${attributes}`;
+  return `class ${obj.className}(BaseModel):\n${attributes}`.trim();
 }
 
 export function getType(value: any): string {

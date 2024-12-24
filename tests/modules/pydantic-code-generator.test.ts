@@ -1,5 +1,6 @@
 import { ClassModel } from "../../src/modules/pydantic-code-generator/interfaces/ClassModel.interface";
 import {
+  generateClass,
   generatePydanticCode,
   getType,
   getTypingImports,
@@ -300,6 +301,82 @@ describe("mergeTypes", () => {
     expect(mergeTypes("Optional[Union[int, str]]", "Optional[float]")).toBe(
       "Optional[Union[float, int, str]]"
     );
+  });
+});
+
+describe("generateClass", () => {
+  test("Should generate a class with no attributes", () => {
+    const input: ClassModel = {
+      className: "EmptyClass",
+      attributes: []
+    };
+
+    const expected = dedent`
+      class EmptyClass(BaseModel):
+    `;
+    expect(generateClass(input)).toBe(expected);
+  });
+
+  test("Should generate a class with one attribute", () => {
+    const input: ClassModel = {
+      className: "SingleAttributeClass",
+      attributes: [{ name: "id", type: "int" }]
+    };
+
+    const expected = dedent`
+      class SingleAttributeClass(BaseModel):
+        id: int
+    `;
+    expect(generateClass(input)).toBe(expected);
+  });
+
+  test("Should generate a class with multiple attributes", () => {
+    const input: ClassModel = {
+      className: "MultiAttributeClass",
+      attributes: [
+        { name: "name", type: "str" },
+        { name: "age", type: "int" },
+        { name: "is_active", type: "bool" }
+      ]
+    };
+
+    const expected = dedent`
+      class MultiAttributeClass(BaseModel):
+        name: str
+        age: int
+        is_active: bool
+    `;
+    expect(generateClass(input)).toBe(expected);
+  });
+
+  test("Should handle attribute names with underscores", () => {
+    const input: ClassModel = {
+      className: "CustomClass",
+      attributes: [{ name: "custom_field", type: "str" }]
+    };
+
+    const expected = dedent`
+      class CustomClass(BaseModel):
+        custom_field: str
+    `;
+    expect(generateClass(input)).toBe(expected);
+  });
+
+  test("Should handle attributes with complex types", () => {
+    const input: ClassModel = {
+      className: "ComplexTypeClass",
+      attributes: [
+        { name: "tags", type: "List[str]" },
+        { name: "config", type: "Optional[Dict[str, Any]]" }
+      ]
+    };
+
+    const expected = dedent`
+      class ComplexTypeClass(BaseModel):
+        tags: List[str]
+        config: Optional[Dict[str, Any]]
+    `;
+    expect(generateClass(input)).toBe(expected);
   });
 });
 
