@@ -5,7 +5,8 @@ import {
   getType,
   getTypingImports,
   mergeClasses,
-  mergeTypes
+  mergeTypes,
+  setToTypeAnnotation
 } from "../../src/modules/pydantic-code-generator/pydantic-code-generator.module";
 import { dedent } from "../../src/modules/utils/utils.module";
 
@@ -185,8 +186,8 @@ describe("mergeClasses", () => {
       {
         className: "User",
         attributes: [
-          { name: "id", type: "Optional[int]" },
-          { name: "email", type: "Optional[str]" }
+          { name: "id", type: new Set(["Any", "int"]) },
+          { name: "email", type: new Set(["Any", "str"]) }
         ]
       }
     ];
@@ -203,7 +204,7 @@ describe("mergeClasses", () => {
     const expected: ClassModel[] = [
       {
         className: "User",
-        attributes: [{ name: "id", type: "Union[int, str]" }]
+        attributes: [{ name: "id", type: new Set(["int", "str"]) }]
       }
     ];
 
@@ -224,8 +225,8 @@ describe("mergeClasses", () => {
       {
         className: "User",
         attributes: [
-          { name: "id", type: "Optional[int]" },
-          { name: "email", type: "Optional[str]" }
+          { name: "id", type: new Set(["Any", "int"]) },
+          { name: "email", type: new Set(["Any", "str"]) }
         ]
       },
       {
@@ -249,8 +250,8 @@ describe("mergeClasses", () => {
       {
         className: "User",
         attributes: [
-          { name: "id", type: "Optional[int]" },
-          { name: "email", type: "Optional[str]" }
+          { name: "id", type: new Set(["Any", "int"]) },
+          { name: "email", type: new Set(["Any", "str"]) }
         ]
       }
     ];
@@ -260,47 +261,85 @@ describe("mergeClasses", () => {
 });
 
 describe("mergeTypes", () => {
-  test("must return the same type when types are equal", () => {
-    expect(mergeTypes("int", "int")).toBe("int");
-    expect(mergeTypes("str", "str")).toBe("str");
-    expect(mergeTypes("Optional[int]", "Optional[int]")).toBe("Optional[int]");
+  test("Should return oldTypes when both oldTypes and typeToAdd are the same string", () => {
+    const oldTypes = "str";
+    const typeToAdd = "str";
+
+    const result = mergeTypes(oldTypes, typeToAdd);
+
+    expect(result).toBe(oldTypes);
   });
 
-  test("should return Optional[Type] when one of the types is Any", () => {
-    expect(mergeTypes("Any", "int")).toBe("Optional[int]");
-    expect(mergeTypes("str", "Any")).toBe("Optional[str]");
-    expect(mergeTypes("Optional[Any]", "int")).toBe("Optional[int]");
+  test("Should return a Set containing oldTypes and typeToAdd when they are different strings", () => {
+    const oldTypes = "str";
+    const typeToAdd = "int";
+
+    const result = mergeTypes(oldTypes, typeToAdd);
+
+    expect(result).toEqual(new Set(["str", "int"]));
   });
 
-  test("should return Union[Type1, Type2] when types are different", () => {
-    expect(mergeTypes("int", "str")).toBe("Union[int, str]");
-    expect(mergeTypes("bool", "float")).toBe("Union[bool, float]");
+  test("Should return oldTypes as a Set and add typeToAdd when oldTypes is already a Set", () => {
+    const oldTypes = new Set(["str", "int"]);
+    const typeToAdd = "float";
+
+    const result = mergeTypes(oldTypes, typeToAdd);
+
+    expect(result).toEqual(new Set(["str", "int", "float"]));
   });
 
-  test("must handle Optional correctly", () => {
-    expect(mergeTypes("Optional[int]", "int")).toBe("Optional[int]");
-    expect(mergeTypes("Optional[int]", "Optional[str]")).toBe(
-      "Optional[Union[int, str]]"
-    );
+  test("Should handle adding a duplicate type to an existing Set", () => {
+    const oldTypes = new Set(["str", "int"]);
+    const typeToAdd = "str";
+
+    const result = mergeTypes(oldTypes, typeToAdd);
+
+    expect(result).toEqual(new Set(["str", "int"]));
   });
 
-  test("must handle Union correctly", () => {
-    expect(mergeTypes("Union[int, str]", "int")).toBe("Union[int, str]");
-    expect(mergeTypes("Union[str, int]", "float")).toBe(
-      "Union[float, int, str]"
-    );
-    expect(mergeTypes("Optional[Union[str, int]]", "int")).toBe(
-      "Optional[Union[int, str]]"
-    );
+  test("Should handle adding an empty Set to oldTypes as a string", () => {
+    const oldTypes = "str";
+    const typeToAdd = new Set<string>();
+
+    const result = mergeTypes(oldTypes, typeToAdd);
+
+    expect(result).toEqual(new Set(["str"]));
   });
 
-  test("must handle combinations of Optional and Union", () => {
-    expect(mergeTypes("Optional[int]", "Union[str, int]")).toBe(
-      "Optional[Union[int, str]]"
-    );
-    expect(mergeTypes("Optional[Union[int, str]]", "Optional[float]")).toBe(
-      "Optional[Union[float, int, str]]"
-    );
+  test("Should handle adding a non-empty Set to oldTypes as a string", () => {
+    const oldTypes = "str";
+    const typeToAdd = new Set(["int", "float"]);
+
+    const result = mergeTypes(oldTypes, typeToAdd);
+
+    expect(result).toEqual(new Set(["str", "int", "float"]));
+  });
+
+  test("Should handle adding a Set to oldTypes as an existing Set", () => {
+    const oldTypes = new Set(["str"]);
+    const typeToAdd = new Set(["int", "float"]);
+
+    const result = mergeTypes(oldTypes, typeToAdd);
+
+    expect(result).toEqual(new Set(["str", "int", "float"]));
+  });
+
+  test("Should handle adding an empty Set to oldTypes as an existing Set", () => {
+    const oldTypes = new Set(["str"]);
+    const typeToAdd = new Set<string>();
+
+    const result = mergeTypes(oldTypes, typeToAdd);
+
+    expect(result).toEqual(new Set(["str"]));
+  });
+
+  test("Should handle merging two identical Sets", () => {
+    const oldTypes = new Set(["str", "int"]);
+    const typeToAdd = new Set(["str", "int"]);
+
+    const result = mergeTypes(oldTypes, typeToAdd);
+
+    expect(result).toEqual(new Set(["str", "int"]));
   });
 });
 
@@ -367,14 +406,14 @@ describe("generateClass", () => {
       className: "ComplexTypeClass",
       attributes: [
         { name: "tags", type: "List[str]" },
-        { name: "config", type: "Optional[Dict[str, Any]]" }
+        { name: "config", type: new Set(["Any", "Config"]) }
       ]
     };
 
     const expected = dedent`
       class ComplexTypeClass(BaseModel):
         tags: List[str]
-        config: Optional[Dict[str, Any]]
+        config: Optional[Config]
     `;
     expect(generateClass(input)).toBe(expected);
   });
@@ -520,5 +559,63 @@ describe("getTypingImports", () => {
           age: int
     `;
     expect(getTypingImports(input)).toBe("");
+  });
+});
+
+describe("setToTypeAnnotation", () => {
+  test("Should return a single type when Set contains one element", () => {
+    const input = new Set(["str"]);
+
+    const result = setToTypeAnnotation(input);
+
+    expect(result).toBe("str");
+  });
+
+  test("Should return a Union of types when Set contains multiple elements", () => {
+    const input = new Set(["str", "int"]);
+
+    const result = setToTypeAnnotation(input);
+
+    expect(result).toBe("Union[int, str]");
+  });
+
+  test("Should handle a Set with multiple elements in arbitrary order", () => {
+    const input = new Set(["float", "bool", "str"]);
+
+    const result = setToTypeAnnotation(input);
+
+    expect(result).toBe("Union[bool, float, str]");
+  });
+
+  test("Should handle a Set with duplicate elements by removing duplicates", () => {
+    const input = new Set(["str", "int", "str"]);
+
+    const result = setToTypeAnnotation(input);
+
+    expect(result).toBe("Union[int, str]");
+  });
+
+  test("Should handle a Set with a single element 'Any'", () => {
+    const input = new Set(["Any"]);
+
+    const result = setToTypeAnnotation(input);
+
+    expect(result).toBe("Any");
+  });
+
+  test("Should return Optional[type] when Set contains 'Any' and one other type", () => {
+    const input = new Set(["str", "Any"]);
+
+    const result = setToTypeAnnotation(input);
+
+    expect(result).toBe("Optional[str]");
+  });
+
+  test("Should return Optional[Union[...]] when Set contains 'Any' and multiple types", () => {
+    const input = new Set(["str", "int", "Any"]);
+
+    const result = setToTypeAnnotation(input);
+
+    expect(result).toBe("Optional[Union[int, str]]");
   });
 });

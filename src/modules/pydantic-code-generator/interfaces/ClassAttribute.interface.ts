@@ -1,4 +1,4 @@
 export interface ClassAttribute {
   name: string;
-  type: string;
+  type: string | Set<string>;
 }

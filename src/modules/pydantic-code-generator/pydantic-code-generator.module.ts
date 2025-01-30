@@ -1,10 +1,6 @@
 import type { ClassModel } from "./interfaces/ClassModel.interface";
 import type { ClassAttribute } from "./interfaces/ClassAttribute.interface";
-import {
-  capitalize,
-  removeOptionalAndUnion,
-  uniqueElements
-} from "../utils/utils.module";
+import { capitalize, uniqueElements } from "../utils/utils.module";
 
 export function generatePydanticCode(json: any): string {
   const generatedClasses = generateClasses(json);
@@ -215,7 +211,11 @@ function setOptional(classes: ClassModel[], classModel: ClassModel) {
 
   for (const attr of classModel.attributes) {
     if (optionalAttrs.includes(attr.name)) {
-      attr.type = `Optional[${attr.type}]`;
+      if (typeof attr.type === "string") {
+        attr.type = new Set(["Any", attr.type]);
+      } else {
+        attr.type.add("Any");
+      }
     }
   }
 }
@@ -234,36 +234,27 @@ function mergeAttributes(classModel: ClassModel, existingClass: ClassModel) {
   }
 }
 
-export function mergeTypes(oldTypes: string, typeToAdd: string): string {
-  const existingTypes = new Set(removeOptionalAndUnion(oldTypes).split(", "));
+export function mergeTypes(
+  oldTypes: string | Set<string>,
+  typeToAdd: string | Set<string>
+): string | Set<string> {
+  if (typeof oldTypes === "string") {
+    if (typeof typeToAdd === "string") {
+      if (oldTypes === typeToAdd) {
+        return oldTypes;
+      }
 
-  removeOptionalAndUnion(typeToAdd)
-    .split(", ")
-    .forEach((e) => existingTypes.add(e));
-
-  if (oldTypes.includes("Optional") || typeToAdd.includes("Optional")) {
-    existingTypes.add("Any");
-  }
-
-  if (existingTypes.has("Any")) {
-    existingTypes.delete("Any");
-
-    if (existingTypes.size > 1) {
-      return `Optional[Union[${[...existingTypes].sort().join(", ")}]]`;
+      return new Set([oldTypes, typeToAdd]);
     }
 
-    if (existingTypes.size === 1) {
-      return `Optional[${[...existingTypes][0]}]`;
-    }
-
-    return "Any";
+    return typeToAdd.add(oldTypes);
   }
 
-  if (existingTypes.size > 1) {
-    return `Union[${[...existingTypes].sort().join(", ")}]`;
+  if (typeof typeToAdd === "string") {
+    return oldTypes.add(typeToAdd);
   }
 
-  return [...existingTypes][0];
+  return new Set([...oldTypes, ...typeToAdd]);
 }
 
 export function generateClass(
@@ -271,7 +262,10 @@ export function generateClass(
   indentation: number = 2
 ): string {
   const attributes = obj.attributes
-    .map((attr) => `${" ".repeat(indentation)}${attr.name}: ${attr.type}`)
+    .map(
+      (attr) =>
+        `${" ".repeat(indentation)}${attr.name}: ${typeof attr.type === "string" ? attr.type : setToTypeAnnotation(attr.type)}`
+    )
     .join("\n");
 
   return `class ${obj.className}(BaseModel):\n${attributes}`.trim();
@@ -321,4 +315,16 @@ export function getTypingImports(s: string): string {
   }
 
   return `from typing import ${types.join(", ")}`;
+}
+
+export function setToTypeAnnotation(s: Set<string>): string {
+  if (s.size > 1) {
+    if (s.delete("Any")) {
+      return `Optional[${setToTypeAnnotation(s)}]`;
+    }
+
+    return `Union[${[...s].sort().join(", ")}]`;
+  }
+
+  return [...s][0];
 }
