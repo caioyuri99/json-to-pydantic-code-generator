@@ -220,7 +220,10 @@ function setOptional(classes: ClassModel[], classModel: ClassModel) {
   }
 }
 
-function mergeAttributes(classModel: ClassModel, existingClass: ClassModel) {
+export function mergeAttributes(
+  classModel: ClassModel,
+  existingClass: ClassModel
+) {
   for (const attr of classModel.attributes) {
     const existingAttr = existingClass.attributes.find(
       (a) => a.name === attr.name
