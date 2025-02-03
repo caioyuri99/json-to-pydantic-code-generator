@@ -275,23 +275,23 @@ export function generateClass(
 }
 
 export function getType(value: any): string {
-  if (typeof value === "string") {
-    return "str";
-  }
+  switch (typeof value) {
+    case "string":
+      return "str";
 
-  if (typeof value === "number" && Number.isInteger(value)) {
-    return "int";
-  }
+    case "number":
+      if (Number.isInteger(value)) {
+        return "int";
+      }
 
-  if (typeof value === "number") {
-    return "float";
-  }
+      return "float";
 
-  if (typeof value === "boolean") {
-    return "bool";
-  }
+    case "boolean":
+      return "bool";
 
-  return "Any";
+    default:
+      return "Any";
+  }
 }
 
 export function getTypingImports(s: string): string {
