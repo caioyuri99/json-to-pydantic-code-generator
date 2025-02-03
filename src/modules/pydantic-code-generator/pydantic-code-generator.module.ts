@@ -202,7 +202,7 @@ export function mergeClasses(classes: ClassModel[]): ClassModel[] {
   return res;
 }
 
-function setOptional(classes: ClassModel[], classModel: ClassModel) {
+export function setOptional(classes: ClassModel[], classModel: ClassModel) {
   const optionalAttrs = uniqueElements(
     classes
       .filter((c) => c.className === classModel.className)
