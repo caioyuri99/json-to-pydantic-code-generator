@@ -85,7 +85,7 @@ function generateClasses(json: any, name: string = "Model"): ClassModel[] {
         });
       }
     } else if (Array.isArray(value)) {
-      const processedArray = processArray(value, capitalize(key));
+      const processedArray = processArray(value, key);
 
       if (Array.isArray(processedArray)) {
         for (const [index, generatedClass] of processedArray.entries()) {
@@ -161,7 +161,7 @@ function generateClasses(json: any, name: string = "Model"): ClassModel[] {
   return res;
 }
 
-function processArray(
+export function processArray(
   value: any[],
   name: string = "Model"
 ): ClassModel[] | ClassAttribute {
@@ -175,7 +175,7 @@ function processArray(
     const res: ClassModel[] = [];
 
     value.forEach((v) => {
-      res.push(...generateClasses(v, name));
+      res.push(...generateClasses(v, capitalize(name)));
     });
 
     return mergeClasses(res);
