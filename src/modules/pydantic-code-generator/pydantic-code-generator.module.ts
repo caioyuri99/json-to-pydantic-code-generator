@@ -20,6 +20,16 @@ function generateClasses(json: any, name: string = "Model"): ClassModel[] {
   const res: ClassModel[] = [];
   const obj: ClassModel = { className: name, attributes: [] };
 
+  if (typeof json === "object" && Array.isArray(json)) {
+    const cms = processArray(json);
+
+    if (!Array.isArray(cms)) {
+      throw new Error("the input json is not a valid json");
+    }
+
+    return cms;
+  }
+
   for (const [key, value] of Object.entries(json)) {
     if (value && typeof value === "object" && !Array.isArray(value)) {
       const generatedClasses = generateClasses(value, capitalize(key));
@@ -172,13 +182,41 @@ export function processArray(
   }
 
   if (value[0] && typeof value[0] === "object") {
-    const res: ClassModel[] = [];
+    if (value.every((v) => !Array.isArray(v))) {
+      const res: ClassModel[] = [];
 
-    value.forEach((v) => {
-      res.push(...generateClasses(v, capitalize(name)));
-    });
+      value.forEach((v) => {
+        res.push(...generateClasses(v, capitalize(name)));
+      });
 
-    return mergeClasses(res);
+      return mergeClasses(res);
+    }
+
+    if (value.every((v) => Array.isArray(v))) {
+      const res: (ClassModel[] | ClassAttribute)[] = [];
+
+      value.forEach((v) => {
+        res.push(processArray(v, name));
+      });
+
+      if (res.every((e) => !Array.isArray(e))) {
+        const r = res as ClassAttribute[];
+
+        if (r.every((v) => v.type === r[0].type)) {
+          return { name, type: `List[${r[0].type}]` };
+        }
+
+        return { name, type: "List[List[Any]]" };
+      }
+
+      if (res.every((e) => Array.isArray(e))) {
+        return mergeClasses(res.flat());
+      }
+
+      return { name, type: "List[List[Any]]" };
+    }
+
+    return { name, type: `List[Any]` };
   }
 
   return { name, type: `List[${firstType}]` };

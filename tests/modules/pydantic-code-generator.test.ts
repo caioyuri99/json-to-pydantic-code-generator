@@ -333,8 +333,6 @@ describe("processArray", () => {
     ]);
   });
 
-  // FIXME: fazer lógica para a função generateClasses ser chamada com um array como input, sem isso esse teste quebra
-  /*
   test("should handle lists of lists of primitive types", () => {
     const input = [
       {
@@ -358,7 +356,6 @@ describe("processArray", () => {
       }
     ]);
   });
-  */
 
   test("should handle deeply nested structures", () => {
     const input = [
