@@ -1,18 +1,18 @@
-export function uniqueElements<T>(listas: T[][]): T[] {
-  const todosOsElementos = new Set(listas.flat());
+export function uniqueElements<T>(lists: T[][]): T[] {
+  const allElements = new Set(lists.flat());
 
-  const frequencia = new Map<T, number>();
-  todosOsElementos.forEach((elemento) => {
-    const count = listas.reduce(
-      (acc, lista) => acc + (lista.includes(elemento) ? 1 : 0),
+  const frequency = new Map<T, number>();
+  allElements.forEach((element) => {
+    const count = lists.reduce(
+      (acc, list) => acc + (list.includes(element) ? 1 : 0),
       0
     );
-    frequencia.set(elemento, count);
+    frequency.set(element, count);
   });
 
-  return Array.from(frequencia.entries())
-    .filter(([_, count]) => count < listas.length)
-    .map(([elemento, _]) => elemento);
+  return Array.from(frequency.entries())
+    .filter(([_, count]) => count < lists.length)
+    .map(([element, _]) => element);
 }
 
 export function capitalize(s: string): string {
@@ -44,4 +44,26 @@ export function dedent(
     )
     .join("\n")
     .trim();
+}
+
+export function unwrapList(s: string): {
+  innerType: string;
+  listCount: number;
+} {
+  let listCount = 0;
+
+  while (s.startsWith("List[")) {
+    s = s.slice(5, -1);
+    listCount++;
+  }
+
+  return { innerType: s, listCount };
+}
+
+export function wrapList(s: string, listCount: number): string {
+  for (let i = 0; i < listCount; i++) {
+    s = `List[${s}]`;
+  }
+
+  return s;
 }

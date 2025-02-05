@@ -1,6 +1,13 @@
 import type { ClassModel } from "./interfaces/ClassModel.interface";
 import type { ClassAttribute } from "./interfaces/ClassAttribute.interface";
-import { capitalize, uniqueElements } from "../utils/utils.module";
+import {
+  capitalize,
+  uniqueElements,
+  unwrapList,
+  wrapList
+} from "../utils/utils.module";
+
+// TODO: adicionar verificação para nomes de classes para impedir que classes sejam criadas com palavras reservadas/nomes de tipos nativos
 
 export function generatePydanticCode(json: any): string {
   const generatedClasses = generateClasses(json);
@@ -21,13 +28,13 @@ function generateClasses(json: any, name: string = "Model"): ClassModel[] {
   const obj: ClassModel = { className: name, attributes: [] };
 
   if (typeof json === "object" && Array.isArray(json)) {
-    const cms = processArray(json);
+    const cms = processArray(json, name);
 
-    if (!Array.isArray(cms)) {
+    if (cms.generatedClassModels.length === 0) {
       throw new Error("the input json is not a valid json");
     }
 
-    return cms;
+    return cms.generatedClassModels;
   }
 
   for (const [key, value] of Object.entries(json)) {
@@ -96,9 +103,11 @@ function generateClasses(json: any, name: string = "Model"): ClassModel[] {
       }
     } else if (Array.isArray(value)) {
       const processedArray = processArray(value, key);
+      const generatedClassModels = processedArray.generatedClassModels;
+      const newAttribute = processedArray.newAttribute;
 
-      if (Array.isArray(processedArray)) {
-        for (const [index, generatedClass] of processedArray.entries()) {
+      if (processedArray.generatedClassModels.length > 0) {
+        for (const [index, generatedClass] of generatedClassModels.entries()) {
           const existingClassWithSameAttrs = res.find(
             (c) =>
               c.attributes.length === generatedClass.attributes.length &&
@@ -110,16 +119,29 @@ function generateClasses(json: any, name: string = "Model"): ClassModel[] {
           );
 
           if (existingClassWithSameAttrs) {
-            for (let i = index + 1; i < processedArray.length; i++) {
-              for (const attr of processedArray[i].attributes) {
+            for (let i = index + 1; i < generatedClassModels.length; i++) {
+              for (const attr of generatedClassModels[i].attributes) {
                 if (attr.type === generatedClass.className) {
                   attr.type = existingClassWithSameAttrs.className;
                 }
               }
             }
 
+            const { innerType, listCount } = unwrapList(
+              newAttribute.type as string
+            );
+
+            if (innerType === generatedClass.className) {
+              newAttribute.type = wrapList(
+                existingClassWithSameAttrs.className,
+                listCount
+              );
+            }
+
             generatedClass.className = existingClassWithSameAttrs.className;
           } else {
+            //TODO: verificar se esse bloco está funcionando corretamente
+
             const existingClass = res.find(
               (c) => c.className === generatedClass.className
             );
@@ -135,32 +157,29 @@ function generateClasses(json: any, name: string = "Model"): ClassModel[] {
                 newClassName = `${generatedClass.className}${i}`;
               }
 
-              for (let i = index + 1; i < processedArray.length; i++) {
-                for (const attr of processedArray[i].attributes) {
-                  if (attr.type === `List[${generatedClass.className}]`) {
-                    attr.type = `List[${newClassName}]`;
+              const generatedType = `List[${generatedClass.className}]`;
+              const existingType = `List[${newClassName}]`;
+
+              for (let i = index + 1; i < generatedClassModels.length; i++) {
+                for (const attr of generatedClassModels[i].attributes) {
+                  if (attr.type === generatedType) {
+                    attr.type = existingType;
                   }
                 }
               }
 
+              if (newAttribute.type === generatedType) {
+                newAttribute.type = existingType;
+              }
               generatedClass.className = newClassName;
 
               res.push(generatedClass);
             }
           }
         }
-
-        const lastGeneratedClass = processedArray.at(-1);
-
-        if (lastGeneratedClass) {
-          obj.attributes.push({
-            name: key,
-            type: `List[${lastGeneratedClass.className}]`
-          });
-        }
-      } else {
-        obj.attributes.push(processedArray);
       }
+
+      obj.attributes.push(newAttribute);
     } else {
       obj.attributes.push({ name: key, type: getType(value) });
     }
@@ -174,11 +193,14 @@ function generateClasses(json: any, name: string = "Model"): ClassModel[] {
 export function processArray(
   value: any[],
   name: string = "Model"
-): ClassModel[] | ClassAttribute {
+): { generatedClassModels: ClassModel[]; newAttribute: ClassAttribute } {
   const firstType = getType(value[0]);
 
   if (!value.every((v) => getType(v) === firstType)) {
-    return { name, type: "List[Any]" };
+    return {
+      generatedClassModels: [],
+      newAttribute: { name, type: "List[Any]" }
+    };
   }
 
   if (value[0] && typeof value[0] === "object") {
@@ -189,37 +211,50 @@ export function processArray(
         res.push(...generateClasses(v, capitalize(name)));
       });
 
-      return mergeClasses(res);
+      return {
+        generatedClassModels: mergeClasses(res),
+        newAttribute: { name, type: `List[${capitalize(name)}]` }
+      };
     }
 
     if (value.every((v) => Array.isArray(v))) {
-      const res: (ClassModel[] | ClassAttribute)[] = [];
+      const res: {
+        generatedClassModels: ClassModel[];
+        newAttribute: ClassAttribute;
+      }[] = [];
 
       value.forEach((v) => {
         res.push(processArray(v, name));
       });
 
-      if (res.every((e) => !Array.isArray(e))) {
-        const r = res as ClassAttribute[];
-
-        if (r.every((v) => v.type === r[0].type)) {
-          return { name, type: `List[${r[0].type}]` };
-        }
-
-        return { name, type: "List[List[Any]]" };
+      if (res.every((e) => e.newAttribute.type === res[0].newAttribute.type)) {
+        return {
+          generatedClassModels: mergeClasses(
+            res.flatMap((e) => e.generatedClassModels)
+          ),
+          newAttribute: {
+            name,
+            type: `List[${res[0].newAttribute.type}]`
+          }
+        };
       }
 
-      if (res.every((e) => Array.isArray(e))) {
-        return mergeClasses(res.flat());
-      }
-
-      return { name, type: "List[List[Any]]" };
+      return {
+        generatedClassModels: [],
+        newAttribute: { name, type: "List[List[Any]]" }
+      };
     }
 
-    return { name, type: `List[Any]` };
+    return {
+      generatedClassModels: [],
+      newAttribute: { name, type: `List[Any]` }
+    };
   }
 
-  return { name, type: `List[${firstType}]` };
+  return {
+    generatedClassModels: [],
+    newAttribute: { name, type: `List[${firstType}]` }
+  };
 }
 
 export function mergeClasses(classes: ClassModel[]): ClassModel[] {

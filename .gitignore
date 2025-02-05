@@ -3,3 +3,4 @@ package-lock.json
 ex.py
 /dist
 /coverage
+.vscode

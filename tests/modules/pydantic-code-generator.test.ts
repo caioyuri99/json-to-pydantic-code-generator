@@ -163,22 +163,34 @@ describe("generatePydanticCode", () => {
 describe("processArray", () => {
   test("should return ClassAttribute with List[int] for homogeneous number array", () => {
     const result = processArray([1, 2, 3], "numbers");
-    expect(result).toEqual({ name: "numbers", type: "List[int]" });
+    expect(result).toEqual({
+      generatedClassModels: [],
+      newAttribute: { name: "numbers", type: "List[int]" }
+    });
   });
 
   test("should return ClassAttribute with List[str] for homogeneous string array", () => {
     const result = processArray(["a", "b", "c"], "letters");
-    expect(result).toEqual({ name: "letters", type: "List[str]" });
+    expect(result).toEqual({
+      generatedClassModels: [],
+      newAttribute: { name: "letters", type: "List[str]" }
+    });
   });
 
   test("should return ClassAttribute with List[bool] for homogeneous boolean array", () => {
     const result = processArray([true, false, true], "flags");
-    expect(result).toEqual({ name: "flags", type: "List[bool]" });
+    expect(result).toEqual({
+      generatedClassModels: [],
+      newAttribute: { name: "flags", type: "List[bool]" }
+    });
   });
 
   test("should return ClassAttribute with List[Any] for heterogeneous array", () => {
     const result = processArray([1, "a", true], "mixed");
-    expect(result).toEqual({ name: "mixed", type: "List[Any]" });
+    expect(result).toEqual({
+      generatedClassModels: [],
+      newAttribute: { name: "mixed", type: "List[Any]" }
+    });
   });
 
   test("should return ClassModel[] for an array of objects", () => {
@@ -187,17 +199,20 @@ describe("processArray", () => {
       { id: 2, name: "Bob" }
     ];
 
-    const result = processArray(input, "User");
+    const result = processArray(input, "user");
 
-    expect(result).toEqual([
-      {
-        className: "User",
-        attributes: [
-          { name: "id", type: "int" },
-          { name: "name", type: "str" }
-        ]
-      }
-    ]);
+    expect(result).toEqual({
+      generatedClassModels: [
+        {
+          className: "User",
+          attributes: [
+            { name: "id", type: "int" },
+            { name: "name", type: "str" }
+          ]
+        }
+      ],
+      newAttribute: { name: "user", type: "List[User]" }
+    });
   });
 
   test("should process nested objects into ClassModels", () => {
@@ -212,24 +227,27 @@ describe("processArray", () => {
       }
     ];
 
-    const result = processArray(input, "User");
+    const result = processArray(input, "user");
 
-    expect(result).toEqual([
-      {
-        className: "Profile",
-        attributes: [
-          { name: "age", type: "int" },
-          { name: "city", type: "str" }
-        ]
-      },
-      {
-        className: "User",
-        attributes: [
-          { name: "id", type: "int" },
-          { name: "profile", type: "Profile" }
-        ]
-      }
-    ]);
+    expect(result).toEqual({
+      generatedClassModels: [
+        {
+          className: "Profile",
+          attributes: [
+            { name: "age", type: "int" },
+            { name: "city", type: "str" }
+          ]
+        },
+        {
+          className: "User",
+          attributes: [
+            { name: "id", type: "int" },
+            { name: "profile", type: "Profile" }
+          ]
+        }
+      ],
+      newAttribute: { name: "user", type: "List[User]" }
+    });
   });
 
   test("should process nested arrays of objects into ClassModels", () => {
@@ -243,24 +261,27 @@ describe("processArray", () => {
       }
     ];
 
-    const result = processArray(input, "User");
+    const result = processArray(input, "user");
 
-    expect(result).toEqual([
-      {
-        className: "Friends",
-        attributes: [
-          { name: "name", type: "str" },
-          { name: "age", type: "int" }
-        ]
-      },
-      {
-        className: "User",
-        attributes: [
-          { name: "id", type: "int" },
-          { name: "friends", type: "List[Friends]" }
-        ]
-      }
-    ]);
+    expect(result).toEqual({
+      generatedClassModels: [
+        {
+          className: "Friends",
+          attributes: [
+            { name: "name", type: "str" },
+            { name: "age", type: "int" }
+          ]
+        },
+        {
+          className: "User",
+          attributes: [
+            { name: "id", type: "int" },
+            { name: "friends", type: "List[Friends]" }
+          ]
+        }
+      ],
+      newAttribute: { name: "user", type: "List[User]" }
+    });
   });
 
   test("should return ClassAttribute with Set containing multiple types for mixed attribute types", () => {
@@ -269,33 +290,39 @@ describe("processArray", () => {
       { id: "2", name: "Bob" }
     ];
 
-    const result = processArray(input, "User");
+    const result = processArray(input, "user");
 
-    expect(result).toEqual([
-      {
-        className: "User",
-        attributes: [
-          { name: "id", type: new Set(["int", "str"]) },
-          { name: "name", type: "str" }
-        ]
-      }
-    ]);
+    expect(result).toEqual({
+      generatedClassModels: [
+        {
+          className: "User",
+          attributes: [
+            { name: "id", type: new Set(["int", "str"]) },
+            { name: "name", type: "str" }
+          ]
+        }
+      ],
+      newAttribute: { name: "user", type: "List[User]" }
+    });
   });
 
   test("should include Any in type when attribute is missing in some objects", () => {
     const input = [{ id: 1, name: "Alice" }, { id: 2 }];
 
-    const result = processArray(input, "User");
+    const result = processArray(input, "user");
 
-    expect(result).toEqual([
-      {
-        className: "User",
-        attributes: [
-          { name: "id", type: "int" },
-          { name: "name", type: new Set(["str", "Any"]) }
-        ]
-      }
-    ]);
+    expect(result).toEqual({
+      generatedClassModels: [
+        {
+          className: "User",
+          attributes: [
+            { name: "id", type: "int" },
+            { name: "name", type: new Set(["str", "Any"]) }
+          ]
+        }
+      ],
+      newAttribute: { name: "user", type: "List[User]" }
+    });
   });
 
   test("should process lists of primitive types inside objects", () => {
@@ -304,33 +331,39 @@ describe("processArray", () => {
       { id: 2, tags: ["javascript"] }
     ];
 
-    const result = processArray(input, "User");
+    const result = processArray(input, "user");
 
-    expect(result).toEqual([
-      {
-        className: "User",
-        attributes: [
-          { name: "id", type: "int" },
-          { name: "tags", type: "List[str]" }
-        ]
-      }
-    ]);
+    expect(result).toEqual({
+      generatedClassModels: [
+        {
+          className: "User",
+          attributes: [
+            { name: "id", type: "int" },
+            { name: "tags", type: "List[str]" }
+          ]
+        }
+      ],
+      newAttribute: { name: "user", type: "List[User]" }
+    });
   });
 
   test("should return List[Any] for heterogeneous lists inside objects", () => {
     const input = [{ id: 1, values: [1, "text", true] }];
 
-    const result = processArray(input, "User");
+    const result = processArray(input, "user");
 
-    expect(result).toEqual([
-      {
-        className: "User",
-        attributes: [
-          { name: "id", type: "int" },
-          { name: "values", type: "List[Any]" }
-        ]
-      }
-    ]);
+    expect(result).toEqual({
+      generatedClassModels: [
+        {
+          className: "User",
+          attributes: [
+            { name: "id", type: "int" },
+            { name: "values", type: "List[Any]" }
+          ]
+        }
+      ],
+      newAttribute: { name: "user", type: "List[User]" }
+    });
   });
 
   test("should handle lists of lists of primitive types", () => {
@@ -344,17 +377,47 @@ describe("processArray", () => {
       }
     ];
 
-    const result = processArray(input, "User");
+    const result = processArray(input, "user");
 
-    expect(result).toEqual([
+    expect(result).toEqual({
+      generatedClassModels: [
+        {
+          className: "User",
+          attributes: [
+            { name: "id", type: "int" },
+            { name: "matrix", type: "List[List[int]]" }
+          ]
+        }
+      ],
+      newAttribute: { name: "user", type: "List[User]" }
+    });
+  });
+
+  test("should handle lists of lists with mixed primitive types", () => {
+    const input = [
       {
-        className: "User",
-        attributes: [
-          { name: "id", type: "int" },
-          { name: "matrix", type: "List[List[int]]" }
+        id: 1,
+        matrix: [
+          [1, "text"],
+          [true, 3.5]
         ]
       }
-    ]);
+    ];
+
+    const result = processArray(input, "user");
+
+    expect(result).toEqual({
+      generatedClassModels: [
+        {
+          className: "User",
+          attributes: [
+            { name: "id", type: "int" },
+            { name: "matrix", type: "List[List[Any]]" }
+          ]
+        }
+      ],
+      newAttribute: { name: "user", type: "List[User]" }
+    });
   });
 
   test("should handle deeply nested structures", () => {
@@ -362,28 +425,73 @@ describe("processArray", () => {
       { id: 1, metadata: { details: { verified: true, level: 5 } } }
     ];
 
-    const result = processArray(input, "User");
+    const result = processArray(input, "user");
 
-    expect(result).toEqual([
-      {
-        className: "Details",
-        attributes: [
-          { name: "verified", type: "bool" },
-          { name: "level", type: "int" }
-        ]
-      },
-      {
-        className: "Metadata",
-        attributes: [{ name: "details", type: "Details" }]
-      },
-      {
-        className: "User",
-        attributes: [
-          { name: "id", type: "int" },
-          { name: "metadata", type: "Metadata" }
-        ]
-      }
-    ]);
+    expect(result).toEqual({
+      generatedClassModels: [
+        {
+          className: "Details",
+          attributes: [
+            { name: "verified", type: "bool" },
+            { name: "level", type: "int" }
+          ]
+        },
+        {
+          className: "Metadata",
+          attributes: [{ name: "details", type: "Details" }]
+        },
+        {
+          className: "User",
+          attributes: [
+            { name: "id", type: "int" },
+            { name: "metadata", type: "Metadata" }
+          ]
+        }
+      ],
+      newAttribute: { name: "user", type: "List[User]" }
+    });
+  });
+
+  test("should handle deeply nested lists of objects", () => {
+    const input = [{ id: 1, data: [[{ value: 10 }], [{ value: 20 }]] }];
+
+    const result = processArray(input, "user");
+
+    expect(result).toEqual({
+      generatedClassModels: [
+        {
+          className: "Data",
+          attributes: [{ name: "value", type: "int" }]
+        },
+        {
+          className: "User",
+          attributes: [
+            { name: "id", type: "int" },
+            { name: "data", type: "List[List[Data]]" }
+          ]
+        }
+      ],
+      newAttribute: { name: "user", type: "List[User]" }
+    });
+  });
+
+  test("should handle lists of lists where some inner lists contain objects and others contain primitives", () => {
+    const input = [{ id: 1, mixed: [[{ value: 10 }], ["string"]] }];
+
+    const result = processArray(input, "user");
+
+    expect(result).toEqual({
+      generatedClassModels: [
+        {
+          className: "User",
+          attributes: [
+            { name: "id", type: "int" },
+            { name: "mixed", type: "List[List[Any]]" }
+          ]
+        }
+      ],
+      newAttribute: { name: "user", type: "List[User]" }
+    });
   });
 });
 
