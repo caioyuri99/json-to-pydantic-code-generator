@@ -1,149 +1,187 @@
-import { generatePydanticCode } from "../../../src/modules/pydantic-code-generator/pydantic-code-generator.module";
 import { dedent } from "../../../src/modules/pydantic-code-generator/utils/utils.module";
+import { generatePydanticCode } from "../../../src/modules/pydantic-code-generator/pydantic-code-generator.module";
 
 describe("generatePydanticCode", () => {
-  test("should generate pydantic code", () => {
-    const json = {
-      name: "John",
-      age: 20,
-      address: {
-        city: "New York",
-        street: "Wall Street"
-      }
-    };
-    const expected = dedent`
-        from pydantic import BaseModel
-
-
-        class Address(BaseModel):
-          city: str
-          street: str
-
-
-        class Model(BaseModel):
-          name: str
-          age: int
-          address: Address
-      `;
+  test("should generate a single class from a simple object", () => {
+    const json = { id: 1, name: "Alice" };
 
     const result = generatePydanticCode(json);
 
-    expect(result).toBe(expected);
+    expect(result).toBe(dedent`
+      from pydantic import BaseModel
+
+
+      class Model(BaseModel):
+        id: int
+        name: str
+    `);
   });
 
-  test("should generate Sort, Content, Sort1, Pageable and Model classes", () => {
+  test("should generate multiple nested classes from an object with nested structures", () => {
     const json = {
-      content: [
-        {
-          id: 1,
-          sort: {
-            direction: "ASC"
-          }
-        }
-      ],
-      pageable: {
-        sort: {
-          sorted: false
-        }
+      id: 1,
+      profile: {
+        age: 25,
+        address: { city: "New York", zip: "10001" }
+      }
+    };
+
+    const result = generatePydanticCode(json);
+
+    expect(result).toBe(dedent`
+      from pydantic import BaseModel
+
+
+      class Address(BaseModel):
+        city: str
+        zip: str
+
+
+      class Profile(BaseModel):
+        age: int
+        address: Address
+
+
+      class Model(BaseModel):
+        id: int
+        profile: Profile
+    `);
+  });
+
+  test("should generate a class with List type for array attributes", () => {
+    const json = {
+      id: 1,
+      tags: ["python", "typescript"]
+    };
+
+    const result = generatePydanticCode(json);
+
+    expect(result).toBe(dedent`
+      from typing import List
+
+      from pydantic import BaseModel
+
+
+      class Model(BaseModel):
+        id: int
+        tags: List[str]
+    `);
+  });
+
+  test("should generate correct types when attributes have mixed types", () => {
+    const json = {
+      id: 1,
+      value: "text",
+      optional_field: null
+    };
+
+    const result = generatePydanticCode(json);
+
+    expect(result).toBe(dedent`
+      from typing import Any
+
+      from pydantic import BaseModel
+
+
+      class Model(BaseModel):
+        id: int
+        value: str
+        optional_field: Any
+    `);
+  });
+
+  test("should handle an array of objects as input", () => {
+    const json = [
+      { id: 1, name: "Alice" },
+      { id: 2, name: "Bob" }
+    ];
+
+    const result = generatePydanticCode(json);
+
+    expect(result).toBe(dedent`
+      from pydantic import BaseModel
+
+
+      class Model(BaseModel):
+        id: int
+        name: str
+    `);
+  });
+
+  test("should generate a class for an array of objects with nested structures", () => {
+    const json = [
+      {
+        id: 1,
+        profile: { age: 25, city: "New York" }
       },
-      sort: {
-        sorted: false
+      {
+        id: 2,
+        profile: { age: 30, city: "Los Angeles" }
       }
-    };
-
-    const expected = dedent`
-        from pydantic import BaseModel
-
-        from typing import List
-
-
-        class Sort(BaseModel):
-          direction: str
-
-
-        class Content(BaseModel):
-          id: int
-          sort: Sort
-
-
-        class Sort1(BaseModel):
-          sorted: bool
-
-
-        class Pageable(BaseModel):
-          sort: Sort1
-
-
-        class Model(BaseModel):
-          content: List[Content]
-          pageable: Pageable
-          sort: Sort1
-      `;
+    ];
 
     const result = generatePydanticCode(json);
 
-    expect(result).toBe(expected);
+    expect(result).toBe(dedent`
+      from pydantic import BaseModel
+
+
+      class Profile(BaseModel):
+        age: int
+        city: str
+
+
+      class Model(BaseModel):
+        id: int
+        profile: Profile
+    `);
   });
 
-  test("should generate Sort, Content, Sort1, Pageable and Model classes (with arrays)", () => {
+  test("should correctly handle deeply nested lists", () => {
     const json = {
-      content: [
-        {
-          id: 1,
-          sort: [
-            {
-              direction: "ASC"
-            }
-          ]
-        }
-      ],
-      pageable: [
-        {
-          sort: [
-            {
-              sorted: false
-            }
-          ]
-        }
-      ],
-      sort: [
-        {
-          sorted: false
-        }
+      matrix: [
+        [
+          [1, 2],
+          [3, 4]
+        ],
+        [
+          [5, 6],
+          [7, 8]
+        ]
       ]
     };
 
-    const expected = dedent`
-        from pydantic import BaseModel
+    const result = generatePydanticCode(json);
 
-        from typing import List
+    expect(result).toBe(dedent`
+      from typing import List
 
-
-        class Sort(BaseModel):
-          direction: str
+      from pydantic import BaseModel
 
 
-        class Content(BaseModel):
-          id: int
-          sort: List[Sort]
+      class Model(BaseModel):
+        matrix: List[List[List[int]]]
+    `);
+  });
 
-
-        class Sort1(BaseModel):
-          sorted: bool
-
-
-        class Pageable(BaseModel):
-          sort: List[Sort1]
-
-
-        class Model(BaseModel):
-          content: List[Content]
-          pageable: List[Pageable]
-          sort: List[Sort1]
-      `;
+  test("should correctly process an object with missing attributes across instances", () => {
+    const json = [
+      { id: 1, name: "Alice", age: 25 },
+      { id: 2, name: "Bob" }
+    ];
 
     const result = generatePydanticCode(json);
 
-    expect(result).toBe(expected);
+    expect(result).toBe(dedent`
+      from typing import Optional
+
+      from pydantic import BaseModel
+
+
+      class Model(BaseModel):
+        id: int
+        name: str
+        age: Optional[int]
+    `);
   });
 });

@@ -7,13 +7,15 @@ import { getTypingImports } from "./functions/getTypingImports.function";
 export function generatePydanticCode(json: any): string {
   const generatedClasses = generateClasses(json);
   const classes = generatedClasses.map((e) => generateClass(e)).join("\n\n\n");
-  const importLines = ["from pydantic import BaseModel"];
+  const importLines = [];
 
   const typingImports = getTypingImports(classes);
 
   if (typingImports) {
     importLines.push(typingImports);
   }
+
+  importLines.push("from pydantic import BaseModel");
 
   return `${importLines.join("\n\n")}\n\n\n${classes}`;
 }
