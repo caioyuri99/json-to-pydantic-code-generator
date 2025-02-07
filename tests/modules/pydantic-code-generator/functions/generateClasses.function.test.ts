@@ -1,6 +1,16 @@
 import { generateClasses } from "../../../../src/modules/pydantic-code-generator/functions/generateClasses.function";
 
 describe("generateClasses", () => {
+  test("Should throw an error when input is not an array of objects", () => {
+    expect(() => generateClasses([42, { name: "Alice" }])).toThrow(
+      new Error("Input must be an object or an array of objects")
+    );
+
+    expect(() => generateClasses([])).toThrow(
+      new Error("Input must be an object or an array of objects")
+    );
+  });
+
   test("should generate a single class for a flat object", () => {
     const json = { id: 1, name: "Alice", age: 30 };
 

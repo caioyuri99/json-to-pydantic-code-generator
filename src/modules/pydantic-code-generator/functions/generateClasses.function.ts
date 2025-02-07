@@ -15,7 +15,7 @@ export function generateClasses(
     const cms = processArray(json, name);
 
     if (cms.generatedClassModels.length === 0) {
-      throw new Error("the input json is not a valid json");
+      throw new Error("Input must be an object or an array of objects");
     }
 
     return cms.generatedClassModels;
