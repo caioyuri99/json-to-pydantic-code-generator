@@ -8,15 +8,39 @@ export function mergeTypes(
         return oldTypes;
       }
 
-      return new Set([oldTypes, typeToAdd]);
+      const newSet = new Set([oldTypes, typeToAdd]);
+
+      if (newSet.has("int") && newSet.has("float")) {
+        newSet.delete("int");
+      }
+
+      return newSet;
     }
 
-    return typeToAdd.add(oldTypes);
+    const newSet = typeToAdd.add(oldTypes);
+
+    if (newSet.has("int") && newSet.has("float")) {
+      newSet.delete("int");
+    }
+
+    return newSet;
   }
 
   if (typeof typeToAdd === "string") {
-    return oldTypes.add(typeToAdd);
+    const newSet = oldTypes.add(typeToAdd);
+
+    if (newSet.has("int") && newSet.has("float")) {
+      newSet.delete("int");
+    }
+
+    return newSet;
   }
 
-  return new Set([...oldTypes, ...typeToAdd]);
+  const newSet = new Set([...oldTypes, ...typeToAdd]);
+
+  if (newSet.has("int") && newSet.has("float")) {
+    newSet.delete("int");
+  }
+
+  return newSet;
 }
