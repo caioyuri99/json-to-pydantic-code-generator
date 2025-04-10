@@ -1,3 +1,5 @@
+import { ListSet } from "../../../../src/modules/pydantic-code-generator/classes/ListSet.class";
+import { TypeSet } from "../../../../src/modules/pydantic-code-generator/classes/TypeSet.class";
 import { generateClasses } from "../../../../src/modules/pydantic-code-generator/functions/generateClasses.function";
 
 describe("generateClasses", () => {
@@ -77,7 +79,7 @@ describe("generateClasses", () => {
       },
       {
         className: "Root",
-        attributes: [{ name: "users", type: "List[Users]" }]
+        attributes: [{ name: "users", type: new ListSet<string>(["Users"]) }]
       }
     ]);
   });
@@ -94,12 +96,12 @@ describe("generateClasses", () => {
         className: "Items",
         attributes: [
           { name: "id", type: "int" },
-          { name: "value", type: new Set(["str", "Any"]) }
+          { name: "value", type: new TypeSet<string>(["str", "Any"]) }
         ]
       },
       {
         className: "Root",
-        attributes: [{ name: "items", type: "List[Items]" }]
+        attributes: [{ name: "items", type: new ListSet<string>(["Items"]) }]
       }
     ]);
   });
@@ -117,7 +119,12 @@ describe("generateClasses", () => {
     expect(result).toEqual([
       {
         className: "Root",
-        attributes: [{ name: "matrix", type: "List[List[int]]" }]
+        attributes: [
+          {
+            name: "matrix",
+            type: new ListSet<string>([new ListSet<string>(["int"])])
+          }
+        ]
       }
     ]);
   });
@@ -139,7 +146,12 @@ describe("generateClasses", () => {
       },
       {
         className: "Root",
-        attributes: [{ name: "data", type: "List[List[Data]]" }]
+        attributes: [
+          {
+            name: "data",
+            type: new ListSet<string>([new ListSet<string>(["Data"])])
+          }
+        ]
       }
     ]);
   });

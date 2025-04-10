@@ -12,13 +12,14 @@ export function generateClasses(
   const obj: ClassModel = { className: name, attributes: [] };
 
   if (typeof json === "object" && Array.isArray(json)) {
-    const cms = processArray(json, name);
-
-    if (cms.generatedClassModels.length === 0) {
+    if (
+      json.some((e) => typeof e !== "object" || Array.isArray(e)) ||
+      json.length === 0
+    ) {
       throw new Error("Input must be an object or an array of objects");
     }
 
-    return cms.generatedClassModels;
+    return processArray(json).generatedClassModels;
   }
 
   for (const [key, value] of Object.entries(json)) {

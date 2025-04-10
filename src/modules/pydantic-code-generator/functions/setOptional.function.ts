@@ -1,3 +1,4 @@
+import { TypeSet } from "../classes/TypeSet.class";
 import { ClassModel } from "../types/ClassModel.type";
 import { uniqueElements } from "../utils/utils.module";
 
@@ -11,7 +12,7 @@ export function setOptional(classes: ClassModel[], classModel: ClassModel) {
   for (const attr of classModel.attributes) {
     if (optionalAttrs.includes(attr.name)) {
       if (typeof attr.type === "string") {
-        attr.type = new Set(["Any", attr.type]);
+        attr.type = new TypeSet<string>(["Any", attr.type]);
       } else {
         attr.type.add("Any");
       }

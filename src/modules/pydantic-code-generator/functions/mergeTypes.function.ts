@@ -1,46 +1,43 @@
+import { ListSet } from "../classes/ListSet.class";
+import { TypeSet } from "../classes/TypeSet.class";
+
 export function mergeTypes(
-  oldTypes: string | Set<string>,
-  typeToAdd: string | Set<string>
-): string | Set<string> {
+  oldTypes: string | TypeSet<string> | ListSet<string>,
+  typeToAdd: string | TypeSet<string> | ListSet<string>
+): string | TypeSet<string> | ListSet<string> {
   if (typeof oldTypes === "string") {
     if (typeof typeToAdd === "string") {
       if (oldTypes === typeToAdd) {
         return oldTypes;
       }
-
-      const newSet = new Set([oldTypes, typeToAdd]);
-
-      if (newSet.has("int") && newSet.has("float")) {
-        newSet.delete("int");
-      }
-
-      return newSet;
     }
 
-    const newSet = typeToAdd.add(oldTypes);
-
-    if (newSet.has("int") && newSet.has("float")) {
-      newSet.delete("int");
+    if (typeToAdd instanceof TypeSet) {
+      return typeToAdd.add(oldTypes);
     }
 
-    return newSet;
+    return new TypeSet<string>([oldTypes, typeToAdd]);
   }
 
-  if (typeof typeToAdd === "string") {
-    const newSet = oldTypes.add(typeToAdd);
-
-    if (newSet.has("int") && newSet.has("float")) {
-      newSet.delete("int");
+  if (oldTypes instanceof ListSet) {
+    if (typeof typeToAdd === "string") {
+      return new TypeSet<string>([oldTypes, typeToAdd]);
     }
 
-    return newSet;
+    if (typeToAdd instanceof ListSet) {
+      return new ListSet<string>([...oldTypes, ...typeToAdd]);
+    }
+
+    return typeToAdd.add(oldTypes);
   }
 
-  const newSet = new Set([...oldTypes, ...typeToAdd]);
+  if (oldTypes instanceof TypeSet) {
+    if (typeToAdd instanceof TypeSet) {
+      typeToAdd.forEach((e) => oldTypes.add(e));
 
-  if (newSet.has("int") && newSet.has("float")) {
-    newSet.delete("int");
+      return oldTypes;
+    }
   }
 
-  return newSet;
+  return oldTypes.add(typeToAdd);
 }

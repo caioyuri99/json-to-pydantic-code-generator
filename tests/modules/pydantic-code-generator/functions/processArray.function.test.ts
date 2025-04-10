@@ -1,35 +1,58 @@
+import { ListSet } from "../../../../src/modules/pydantic-code-generator/classes/ListSet.class";
+import { TypeSet } from "../../../../src/modules/pydantic-code-generator/classes/TypeSet.class";
 import { processArray } from "../../../../src/modules/pydantic-code-generator/functions/processArray.function";
 
 describe("processArray", () => {
-  test("should return ClassAttribute with List[int] for homogeneous number array", () => {
+  test("should return ClassAttribute with ListSet containing 'int' for homogeneous number array", () => {
     const result = processArray([1, 2, 3], "numbers");
-    expect(result).toEqual({
+    expect(result).toStrictEqual({
       generatedClassModels: [],
-      newAttribute: { name: "numbers", type: "List[int]" }
+      newAttribute: { name: "numbers", type: new ListSet<string>(["int"]) }
     });
   });
 
-  test("should return ClassAttribute with List[str] for homogeneous string array", () => {
+  test("should return ClassAttribute with ListSet containing 'str' for homogeneous string array", () => {
     const result = processArray(["a", "b", "c"], "letters");
-    expect(result).toEqual({
+    expect(result).toStrictEqual({
       generatedClassModels: [],
-      newAttribute: { name: "letters", type: "List[str]" }
+      newAttribute: { name: "letters", type: new ListSet<string>(["str"]) }
     });
   });
 
-  test("should return ClassAttribute with List[bool] for homogeneous boolean array", () => {
+  test("should return ClassAttribute with ListSet containing 'bool' for homogeneous boolean array", () => {
     const result = processArray([true, false, true], "flags");
-    expect(result).toEqual({
+    expect(result).toStrictEqual({
       generatedClassModels: [],
-      newAttribute: { name: "flags", type: "List[bool]" }
+      newAttribute: { name: "flags", type: new ListSet<string>(["bool"]) }
     });
   });
 
-  test("should return ClassAttribute with List[Any] for heterogeneous array", () => {
+  test("should return ClassAttribute with ListSet containing <Type1, Type2, ...> for heterogeneous array", () => {
     const result = processArray([1, "a", true], "mixed");
     expect(result).toEqual({
       generatedClassModels: [],
-      newAttribute: { name: "mixed", type: "List[Any]" }
+      newAttribute: {
+        name: "mixed",
+        type: new ListSet<string>(["bool", "int", "str"])
+      }
+    });
+  });
+
+  test("should return ClassAttribute with ListSet containing ListSet containing <Type1, Type2, ...> for array of arrays", () => {
+    const result = processArray(
+      [
+        [1, 2, 3],
+        [4, 5, 6]
+      ],
+      "matrix"
+    );
+
+    expect(result).toEqual({
+      generatedClassModels: [],
+      newAttribute: {
+        name: "matrix",
+        type: new ListSet<string>([new ListSet<string>(["int"])])
+      }
     });
   });
 
@@ -51,7 +74,7 @@ describe("processArray", () => {
           ]
         }
       ],
-      newAttribute: { name: "user", type: "List[User]" }
+      newAttribute: { name: "user", type: new ListSet<string>(["User"]) }
     });
   });
 
@@ -86,7 +109,7 @@ describe("processArray", () => {
           ]
         }
       ],
-      newAttribute: { name: "user", type: "List[User]" }
+      newAttribute: { name: "user", type: new ListSet<string>(["User"]) }
     });
   });
 
@@ -116,11 +139,11 @@ describe("processArray", () => {
           className: "User",
           attributes: [
             { name: "id", type: "int" },
-            { name: "friends", type: "List[Friends]" }
+            { name: "friends", type: new ListSet<string>(["Friends"]) }
           ]
         }
       ],
-      newAttribute: { name: "user", type: "List[User]" }
+      newAttribute: { name: "user", type: new ListSet<string>(["User"]) }
     });
   });
 
@@ -137,12 +160,12 @@ describe("processArray", () => {
         {
           className: "User",
           attributes: [
-            { name: "id", type: new Set(["int", "str"]) },
+            { name: "id", type: new TypeSet<string>(["int", "str"]) },
             { name: "name", type: "str" }
           ]
         }
       ],
-      newAttribute: { name: "user", type: "List[User]" }
+      newAttribute: { name: "user", type: new ListSet<string>(["User"]) }
     });
   });
 
@@ -157,11 +180,11 @@ describe("processArray", () => {
           className: "User",
           attributes: [
             { name: "id", type: "int" },
-            { name: "name", type: new Set(["str", "Any"]) }
+            { name: "name", type: new TypeSet<string>(["str", "Any"]) }
           ]
         }
       ],
-      newAttribute: { name: "user", type: "List[User]" }
+      newAttribute: { name: "user", type: new ListSet<string>(["User"]) }
     });
   });
 
@@ -179,15 +202,15 @@ describe("processArray", () => {
           className: "User",
           attributes: [
             { name: "id", type: "int" },
-            { name: "tags", type: "List[str]" }
+            { name: "tags", type: new ListSet<string>(["str"]) }
           ]
         }
       ],
-      newAttribute: { name: "user", type: "List[User]" }
+      newAttribute: { name: "user", type: new ListSet<string>(["User"]) }
     });
   });
 
-  test("should return List[Any] for heterogeneous lists inside objects", () => {
+  test("should return List[Union[Type1, Type2, ...]] for heterogeneous lists inside objects", () => {
     const input = [{ id: 1, values: [1, "text", true] }];
 
     const result = processArray(input, "user");
@@ -198,11 +221,14 @@ describe("processArray", () => {
           className: "User",
           attributes: [
             { name: "id", type: "int" },
-            { name: "values", type: "List[Any]" }
+            {
+              name: "values",
+              type: new ListSet<string>(["bool", "int", "str"])
+            }
           ]
         }
       ],
-      newAttribute: { name: "user", type: "List[User]" }
+      newAttribute: { name: "user", type: new ListSet<string>(["User"]) }
     });
   });
 
@@ -225,11 +251,14 @@ describe("processArray", () => {
           className: "User",
           attributes: [
             { name: "id", type: "int" },
-            { name: "matrix", type: "List[List[int]]" }
+            {
+              name: "matrix",
+              type: new ListSet<string>([new ListSet<string>(["int"])])
+            }
           ]
         }
       ],
-      newAttribute: { name: "user", type: "List[User]" }
+      newAttribute: { name: "user", type: new ListSet<string>(["User"]) }
     });
   });
 
@@ -252,11 +281,16 @@ describe("processArray", () => {
           className: "User",
           attributes: [
             { name: "id", type: "int" },
-            { name: "matrix", type: "List[List[Any]]" }
+            {
+              name: "matrix",
+              type: new ListSet<string>([
+                new ListSet<string>(["bool", "float", "str", "int"])
+              ])
+            }
           ]
         }
       ],
-      newAttribute: { name: "user", type: "List[User]" }
+      newAttribute: { name: "user", type: new ListSet<string>(["User"]) }
     });
   });
 
@@ -288,7 +322,7 @@ describe("processArray", () => {
           ]
         }
       ],
-      newAttribute: { name: "user", type: "List[User]" }
+      newAttribute: { name: "user", type: new ListSet<string>(["User"]) }
     });
   });
 
@@ -307,11 +341,14 @@ describe("processArray", () => {
           className: "User",
           attributes: [
             { name: "id", type: "int" },
-            { name: "data", type: "List[List[Data]]" }
+            {
+              name: "data",
+              type: new ListSet<string>([new ListSet<string>(["Data"])])
+            }
           ]
         }
       ],
-      newAttribute: { name: "user", type: "List[User]" }
+      newAttribute: { name: "user", type: new ListSet<string>(["User"]) }
     });
   });
 
@@ -323,14 +360,21 @@ describe("processArray", () => {
     expect(result).toEqual({
       generatedClassModels: [
         {
+          className: "Mixed",
+          attributes: [{ name: "value", type: "int" }]
+        },
+        {
           className: "User",
           attributes: [
             { name: "id", type: "int" },
-            { name: "mixed", type: "List[List[Any]]" }
+            {
+              name: "mixed",
+              type: new ListSet<string>([new ListSet<string>(["str", "Mixed"])])
+            }
           ]
         }
       ],
-      newAttribute: { name: "user", type: "List[User]" }
+      newAttribute: { name: "user", type: new ListSet<string>(["User"]) }
     });
   });
 });

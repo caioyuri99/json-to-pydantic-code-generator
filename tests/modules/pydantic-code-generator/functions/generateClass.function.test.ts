@@ -1,3 +1,5 @@
+import { ListSet } from "../../../../src/modules/pydantic-code-generator/classes/ListSet.class";
+import { TypeSet } from "../../../../src/modules/pydantic-code-generator/classes/TypeSet.class";
 import { generateClass } from "../../../../src/modules/pydantic-code-generator/functions/generateClass.function";
 import { ClassModel } from "../../../../src/modules/pydantic-code-generator/types/ClassModel.type";
 import { dedent } from "../../../../src/modules/pydantic-code-generator/utils/utils.module";
@@ -64,8 +66,8 @@ describe("generateClass", () => {
     const input: ClassModel = {
       className: "ComplexTypeClass",
       attributes: [
-        { name: "tags", type: "List[str]" },
-        { name: "config", type: new Set(["Any", "Config"]) }
+        { name: "tags", type: new ListSet<string>(["str"]) },
+        { name: "config", type: new TypeSet<string>(["Any", "Config"]) }
       ]
     };
 

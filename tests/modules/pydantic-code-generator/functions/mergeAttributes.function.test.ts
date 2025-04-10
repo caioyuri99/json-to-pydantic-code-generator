@@ -1,3 +1,4 @@
+import { TypeSet } from "../../../../src/modules/pydantic-code-generator/classes/TypeSet.class";
 import { mergeAttributes } from "../../../../src/modules/pydantic-code-generator/functions/mergeAttributes.function";
 import { ClassModel } from "../../../../src/modules/pydantic-code-generator/types/ClassModel.type";
 
@@ -35,7 +36,7 @@ describe("mergeAttributes", () => {
     mergeAttributes(classModel, existingClass);
 
     expect(existingClass.attributes).toEqual([
-      { name: "name", type: new Set(["str", "int"]) }
+      { name: "name", type: new TypeSet<string>(["str", "int"]) }
     ]);
   });
 
@@ -59,7 +60,7 @@ describe("mergeAttributes", () => {
     mergeAttributes(classModel, existingClass);
 
     expect(existingClass.attributes).toEqual([
-      { name: "id", type: new Set(["int", "str"]) },
+      { name: "id", type: new TypeSet<string>(["int", "str"]) },
       { name: "salary", type: "float" },
       { name: "department", type: "str" }
     ]);
@@ -85,31 +86,31 @@ describe("mergeAttributes", () => {
     const existingClass: ClassModel = {
       className: "Product",
       attributes: [
-        { name: "price", type: new Set(["float"]) },
-        { name: "stock", type: new Set(["int"]) }
+        { name: "price", type: new TypeSet<string>(["float"]) },
+        { name: "stock", type: new TypeSet<string>(["int"]) }
       ]
     };
 
     const classModel: ClassModel = {
       className: "Product",
       attributes: [
-        { name: "price", type: new Set(["int"]) },
-        { name: "stock", type: new Set(["str"]) }
+        { name: "price", type: new TypeSet<string>(["int"]) },
+        { name: "stock", type: new TypeSet<string>(["str"]) }
       ]
     };
 
     mergeAttributes(classModel, existingClass);
 
     expect(existingClass.attributes).toEqual([
-      { name: "price", type: new Set(["float", "int"]) },
-      { name: "stock", type: new Set(["int", "str"]) }
+      { name: "price", type: new TypeSet<string>(["float", "int"]) },
+      { name: "stock", type: new TypeSet<string>(["int", "str"]) }
     ]);
   });
 
   test("Should handle merging a string type into an existing Set<string>", () => {
     const existingClass: ClassModel = {
       className: "Device",
-      attributes: [{ name: "version", type: new Set(["float"]) }]
+      attributes: [{ name: "version", type: new TypeSet<string>(["float"]) }]
     };
 
     const classModel: ClassModel = {
@@ -120,14 +121,16 @@ describe("mergeAttributes", () => {
     mergeAttributes(classModel, existingClass);
 
     expect(existingClass.attributes).toEqual([
-      { name: "version", type: new Set(["float", "int"]) }
+      { name: "version", type: new TypeSet<string>(["float", "int"]) }
     ]);
   });
 
   test("Should correctly merge Any in Set<string>", () => {
     const existingClass: ClassModel = {
       className: "User",
-      attributes: [{ name: "status", type: new Set(["str", "Any"]) }]
+      attributes: [
+        { name: "status", type: new TypeSet<string>(["str", "Any"]) }
+      ]
     };
 
     const classModel: ClassModel = {
@@ -138,14 +141,16 @@ describe("mergeAttributes", () => {
     mergeAttributes(classModel, existingClass);
 
     expect(existingClass.attributes).toEqual([
-      { name: "status", type: new Set(["Any", "int", "str"]) }
+      { name: "status", type: new TypeSet<string>(["Any", "int", "str"]) }
     ]);
   });
 
   test("Should correctly handle merging a Set containing Any", () => {
     const existingClass: ClassModel = {
       className: "Account",
-      attributes: [{ name: "balance", type: new Set(["float", "Any"]) }]
+      attributes: [
+        { name: "balance", type: new TypeSet<string>(["float", "Any"]) }
+      ]
     };
 
     const classModel: ClassModel = {
@@ -156,7 +161,7 @@ describe("mergeAttributes", () => {
     mergeAttributes(classModel, existingClass);
 
     expect(existingClass.attributes).toEqual([
-      { name: "balance", type: new Set(["Any", "float", "int"]) }
+      { name: "balance", type: new TypeSet<string>(["Any", "float", "int"]) }
     ]);
   });
 });

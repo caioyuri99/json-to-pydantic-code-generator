@@ -1,3 +1,4 @@
+import { TypeSet } from "../../../../src/modules/pydantic-code-generator/classes/TypeSet.class";
 import { setOptional } from "../../../../src/modules/pydantic-code-generator/functions/setOptional.function";
 import { ClassModel } from "../../../../src/modules/pydantic-code-generator/types/ClassModel.type";
 
@@ -40,8 +41,8 @@ describe("setOptional", () => {
 
     expect(classModel.attributes).toEqual([
       { name: "id", type: "int" },
-      { name: "name", type: new Set(["str", "Any"]) },
-      { name: "email", type: new Set(["str", "Any"]) }
+      { name: "name", type: new TypeSet<string>(["str", "Any"]) },
+      { name: "email", type: new TypeSet<string>(["str", "Any"]) }
     ]);
 
     // Verifica que as classes originais não foram alteradas
@@ -112,13 +113,15 @@ describe("setOptional", () => {
       {
         className: "Product",
         attributes: [
-          { name: "price", type: new Set(["float", "int"]) },
+          { name: "price", type: new TypeSet<string>(["float", "int"]) },
           { name: "stock", type: "int" }
         ]
       },
       {
         className: "Product",
-        attributes: [{ name: "price", type: new Set(["float", "int"]) }]
+        attributes: [
+          { name: "price", type: new TypeSet<string>(["float", "int"]) }
+        ]
       },
       {
         className: "Order", // Deve ser ignorado
@@ -129,7 +132,7 @@ describe("setOptional", () => {
     const classModel: ClassModel = {
       className: "Product",
       attributes: [
-        { name: "price", type: new Set(["float", "int"]) },
+        { name: "price", type: new TypeSet<string>(["float", "int"]) },
         { name: "stock", type: "int" }
       ]
     };
@@ -137,8 +140,8 @@ describe("setOptional", () => {
     setOptional(classes, classModel);
 
     expect(classModel.attributes).toEqual([
-      { name: "price", type: new Set(["float", "int"]) },
-      { name: "stock", type: new Set(["int", "Any"]) }
+      { name: "price", type: new TypeSet<string>(["float", "int"]) },
+      { name: "stock", type: new TypeSet<string>(["int", "Any"]) }
     ]);
   });
 
@@ -160,13 +163,15 @@ describe("setOptional", () => {
 
     const classModel: ClassModel = {
       className: "Device",
-      attributes: [{ name: "version", type: new Set(["int", "Any"]) }]
+      attributes: [
+        { name: "version", type: new TypeSet<string>(["int", "Any"]) }
+      ]
     };
 
     setOptional(classes, classModel);
 
     expect(classModel.attributes).toEqual([
-      { name: "version", type: new Set(["int", "Any"]) }
+      { name: "version", type: new TypeSet<string>(["int", "Any"]) }
     ]);
   });
 
@@ -212,8 +217,8 @@ describe("setOptional", () => {
 
     expect(classModel.attributes).toEqual([
       { name: "name", type: "str" },
-      { name: "salary", type: new Set(["float", "Any"]) },
-      { name: "bonus", type: new Set(["int", "Any"]) }
+      { name: "salary", type: new TypeSet<string>(["float", "Any"]) },
+      { name: "bonus", type: new TypeSet<string>(["int", "Any"]) }
     ]);
   });
 });

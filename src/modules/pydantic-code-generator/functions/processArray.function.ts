@@ -1,3 +1,4 @@
+import { ListSet } from "../classes/ListSet.class";
 import { ClassAttribute } from "../types/ClassAttribute.type";
 import { ClassModel } from "../types/ClassModel.type";
 import { capitalize } from "../utils/utils.module";
@@ -9,65 +10,36 @@ export function processArray(
   value: any[],
   name: string = "Model"
 ): { generatedClassModels: ClassModel[]; newAttribute: ClassAttribute } {
-  const firstType = getType(value[0]);
+  const generatedClassModels: ClassModel[] = [];
+  const types = new ListSet<string>();
 
-  if (!value.every((v) => getType(v) === firstType)) {
-    return {
-      generatedClassModels: [],
-      newAttribute: { name, type: "List[Any]" }
-    };
-  }
+  value.forEach((v) => {
+    if (typeof v !== "object") {
+      types.add(getType(v));
 
-  if (value[0] && typeof value[0] === "object") {
-    if (value.every((v) => !Array.isArray(v))) {
-      const res: ClassModel[] = [];
-
-      value.forEach((v) => {
-        res.push(...generateClasses(v, capitalize(name)));
-      });
-
-      return {
-        generatedClassModels: mergeClasses(res),
-        newAttribute: { name, type: `List[${capitalize(name)}]` }
-      };
+      return;
     }
 
-    if (value.every((v) => Array.isArray(v))) {
-      const res: {
-        generatedClassModels: ClassModel[];
-        newAttribute: ClassAttribute;
-      }[] = [];
+    if (Array.isArray(v)) {
+      const res = processArray(v, name);
 
-      value.forEach((v) => {
-        res.push(processArray(v, name));
-      });
+      generatedClassModels.push(...res.generatedClassModels);
 
-      if (res.every((e) => e.newAttribute.type === res[0].newAttribute.type)) {
-        return {
-          generatedClassModels: mergeClasses(
-            res.flatMap((e) => e.generatedClassModels)
-          ),
-          newAttribute: {
-            name,
-            type: `List[${res[0].newAttribute.type}]`
-          }
-        };
-      }
+      types.add(res.newAttribute.type);
 
-      return {
-        generatedClassModels: [],
-        newAttribute: { name, type: "List[List[Any]]" }
-      };
+      return;
     }
 
-    return {
-      generatedClassModels: [],
-      newAttribute: { name, type: `List[Any]` }
-    };
-  }
+    types.add(capitalize(name));
+
+    generatedClassModels.push(...generateClasses(v, capitalize(name)));
+  });
 
   return {
-    generatedClassModels: [],
-    newAttribute: { name, type: `List[${firstType}]` }
+    generatedClassModels: mergeClasses(generatedClassModels),
+    newAttribute: {
+      name: name,
+      type: types
+    }
   };
 }

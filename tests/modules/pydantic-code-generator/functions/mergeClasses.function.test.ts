@@ -1,3 +1,4 @@
+import { TypeSet } from "../../../../src/modules/pydantic-code-generator/classes/TypeSet.class";
 import { mergeClasses } from "../../../../src/modules/pydantic-code-generator/functions/mergeClasses.function";
 import { ClassModel } from "../../../../src/modules/pydantic-code-generator/types/ClassModel.type";
 
@@ -30,8 +31,8 @@ describe("mergeClasses", () => {
       {
         className: "User",
         attributes: [
-          { name: "id", type: new Set(["Any", "int"]) },
-          { name: "email", type: new Set(["Any", "str"]) }
+          { name: "id", type: new TypeSet<string>(["Any", "int"]) },
+          { name: "email", type: new TypeSet<string>(["Any", "str"]) }
         ]
       }
     ];
@@ -48,7 +49,7 @@ describe("mergeClasses", () => {
     const expected: ClassModel[] = [
       {
         className: "User",
-        attributes: [{ name: "id", type: new Set(["int", "str"]) }]
+        attributes: [{ name: "id", type: new TypeSet<string>(["int", "str"]) }]
       }
     ];
 
@@ -69,8 +70,8 @@ describe("mergeClasses", () => {
       {
         className: "User",
         attributes: [
-          { name: "id", type: new Set(["Any", "int"]) },
-          { name: "email", type: new Set(["Any", "str"]) }
+          { name: "id", type: new TypeSet<string>(["Any", "int"]) },
+          { name: "email", type: new TypeSet<string>(["Any", "str"]) }
         ]
       },
       {
@@ -94,8 +95,8 @@ describe("mergeClasses", () => {
       {
         className: "User",
         attributes: [
-          { name: "id", type: new Set(["Any", "int"]) },
-          { name: "email", type: new Set(["Any", "str"]) }
+          { name: "id", type: new TypeSet<string>(["Any", "int"]) },
+          { name: "email", type: new TypeSet<string>(["Any", "str"]) }
         ]
       }
     ];
