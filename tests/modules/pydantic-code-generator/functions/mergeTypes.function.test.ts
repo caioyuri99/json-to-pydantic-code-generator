@@ -101,4 +101,20 @@ describe("mergeTypes", () => {
       ])
     );
   });
+
+  test("should add oldTypes to typeToAdd when oldTypes is a string and typeToAdd is a TypeSet and then return typeToAdd", () => {
+    const oldTypes = "str";
+    const typeToAdd = new TypeSet<string>(["int"]);
+
+    const result = mergeTypes(oldTypes, typeToAdd);
+    expect(result).toEqual(new TypeSet<string>(["int", "str"]));
+  });
+
+  test("should add oldTypes to typeToAdd when oldTypes is a ListSet and typeToAdd is a TypeSet and the return typeToAdd", () => {
+    const oldTypes = new ListSet<string>(["int"]);
+    const typeToAdd = new TypeSet<string>(["str"]);
+
+    const result = mergeTypes(oldTypes, typeToAdd);
+    expect(result).toEqual(new TypeSet<string>(["str", new ListSet(["int"])]));
+  });
 });
