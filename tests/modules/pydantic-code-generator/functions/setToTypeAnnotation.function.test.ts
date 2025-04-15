@@ -1,9 +1,10 @@
 import { ListSet } from "../../../../src/modules/pydantic-code-generator/classes/ListSet.class";
+import { TypeSet } from "../../../../src/modules/pydantic-code-generator/classes/TypeSet.class";
 import { setToTypeAnnotation } from "../../../../src/modules/pydantic-code-generator/functions/setToTypeAnnotation.function";
 
 describe("setToTypeAnnotation", () => {
   test("Should return a single type when Set contains one element", () => {
-    const input = new Set(["str"]);
+    const input = new TypeSet<string>(["str"]);
 
     const result = setToTypeAnnotation(input);
 
@@ -11,7 +12,7 @@ describe("setToTypeAnnotation", () => {
   });
 
   test("Should return a Union of types when Set contains multiple elements", () => {
-    const input = new Set(["str", "int"]);
+    const input = new TypeSet<string>(["str", "int"]);
 
     const result = setToTypeAnnotation(input);
 
@@ -19,7 +20,7 @@ describe("setToTypeAnnotation", () => {
   });
 
   test("Should remove int when Set has float and int type", () => {
-    const input = new Set(["str", "int", "float"]);
+    const input = new TypeSet<string>(["str", "int", "float"]);
 
     const result = setToTypeAnnotation(input);
 
@@ -27,7 +28,7 @@ describe("setToTypeAnnotation", () => {
   });
 
   test("Should handle a Set with multiple elements in arbitrary order", () => {
-    const input = new Set(["float", "bool", "str"]);
+    const input = new TypeSet<string>(["float", "bool", "str"]);
 
     const result = setToTypeAnnotation(input);
 
@@ -35,7 +36,7 @@ describe("setToTypeAnnotation", () => {
   });
 
   test("Should handle a Set with duplicate elements by removing duplicates", () => {
-    const input = new Set(["str", "int", "str"]);
+    const input = new TypeSet<string>(["str", "int", "str"]);
 
     const result = setToTypeAnnotation(input);
 
@@ -43,7 +44,7 @@ describe("setToTypeAnnotation", () => {
   });
 
   test("Should handle a Set with a single element 'Any'", () => {
-    const input = new Set(["Any"]);
+    const input = new TypeSet<string>(["Any"]);
 
     const result = setToTypeAnnotation(input);
 
@@ -51,7 +52,7 @@ describe("setToTypeAnnotation", () => {
   });
 
   test("Should return Optional[type] when Set contains 'Any' and one other type", () => {
-    const input = new Set(["str", "Any"]);
+    const input = new TypeSet<string>(["str", "Any"]);
 
     const result = setToTypeAnnotation(input);
 
@@ -59,7 +60,7 @@ describe("setToTypeAnnotation", () => {
   });
 
   test("Should return Optional[Union[...]] when Set contains 'Any' and multiple types", () => {
-    const input = new Set(["str", "int", "Any"]);
+    const input = new TypeSet<string>(["str", "int", "Any"]);
 
     const result = setToTypeAnnotation(input);
 
@@ -96,7 +97,7 @@ describe("setToTypeAnnotation", () => {
   test("Should return Union[List[Type], Type1] when Set contains a ListSet and a type", () => {
     const listSet = new ListSet<string>(["int", "float"]);
 
-    const input = new Set<string | ListSet<string>>([listSet, "str"]);
+    const input = new TypeSet<string>([listSet, "str"]);
 
     expect(setToTypeAnnotation(input)).toBe("Union[List[float], str]");
   });
@@ -104,7 +105,7 @@ describe("setToTypeAnnotation", () => {
   test("Should return Optional[List[Union[Type1, Type2, ...]]] when Set contains Any and a ListSet with multiple elements", () => {
     const listSet = new ListSet<string>(["str", "int", "float"]);
 
-    const input = new Set<string | ListSet<string>>(["Any", listSet]);
+    const input = new TypeSet<string>(["Any", listSet]);
 
     expect(setToTypeAnnotation(input)).toBe(
       "Optional[List[Union[float, str]]]"
@@ -114,7 +115,7 @@ describe("setToTypeAnnotation", () => {
   test("Should return Optional[Union[List[Type], Type1, Type2, ...] when Set contains Any, a ListSet and other types", () => {
     const ls = new ListSet<string>(["int", "float"]);
 
-    const s = new Set<string | ListSet<string>>(["Any", ls, "float", "str"]);
+    const s = new TypeSet<string>(["Any", ls, "float", "str"]);
 
     expect(setToTypeAnnotation(s)).toBe(
       "Optional[Union[List[float], float, str]]"

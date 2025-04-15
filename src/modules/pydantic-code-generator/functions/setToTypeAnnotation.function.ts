@@ -1,7 +1,8 @@
 import { ListSet } from "../classes/ListSet.class";
+import { TypeSet } from "../classes/TypeSet.class";
 
 export function setToTypeAnnotation(
-  s: Set<string | ListSet<string>> | ListSet<string>
+  s: TypeSet<string> | ListSet<string>
 ): string {
   if (s.has("int") && s.has("float")) {
     s.delete("int");
