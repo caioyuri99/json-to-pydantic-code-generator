@@ -11,11 +11,7 @@ export function setOptional(classes: ClassModel[], classModel: ClassModel) {
 
   for (const attr of classModel.attributes) {
     if (optionalAttrs.includes(attr.name)) {
-      if (typeof attr.type === "string") {
-        attr.type = new TypeSet<string>(["Any", attr.type]);
-      } else {
-        attr.type.add("Any");
-      }
+      attr.type.add("Any");
     }
   }
 }

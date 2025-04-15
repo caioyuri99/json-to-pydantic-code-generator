@@ -4,6 +4,9 @@ import { processArray } from "./processArray.function";
 import { ClassAttribute } from "../types/ClassAttribute.type";
 import { capitalize, unwrapList, wrapList } from "../utils/utils.module";
 
+// TODO: adicionar flag preferClassReuse: define se vai reutilizar classes geradas anteriormente para tipar as novas classes geradas
+// TODO: adicionar flag mergeEqualNameClasses: define se vai fazer o merge de classes com nomes iguais
+
 export function generateClasses(
   json: any,
   name: string = "Model"

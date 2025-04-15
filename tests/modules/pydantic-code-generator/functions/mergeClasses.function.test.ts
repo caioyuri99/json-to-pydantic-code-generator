@@ -11,10 +11,13 @@ describe("mergeClasses", () => {
 
   test("no duplication", () => {
     const objects: ClassModel[] = [
-      { className: "User", attributes: [{ name: "id", type: "int" }] },
+      {
+        className: "User",
+        attributes: [{ name: "id", type: new TypeSet<string>(["int"]) }]
+      },
       {
         className: "Product",
-        attributes: [{ name: "price", type: "float" }]
+        attributes: [{ name: "price", type: new TypeSet<string>(["float"]) }]
       }
     ];
 
@@ -23,8 +26,14 @@ describe("mergeClasses", () => {
 
   test("identical classes with different attributes", () => {
     const objects: ClassModel[] = [
-      { className: "User", attributes: [{ name: "id", type: "int" }] },
-      { className: "User", attributes: [{ name: "email", type: "str" }] }
+      {
+        className: "User",
+        attributes: [{ name: "id", type: new TypeSet<string>(["int"]) }]
+      },
+      {
+        className: "User",
+        attributes: [{ name: "email", type: new TypeSet<string>(["str"]) }]
+      }
     ];
 
     const expected: ClassModel[] = [
@@ -42,8 +51,14 @@ describe("mergeClasses", () => {
 
   test("duplicate attributes and conflicting types", () => {
     const objects: ClassModel[] = [
-      { className: "User", attributes: [{ name: "id", type: "int" }] },
-      { className: "User", attributes: [{ name: "id", type: "str" }] }
+      {
+        className: "User",
+        attributes: [{ name: "id", type: new TypeSet<string>(["int"]) }]
+      },
+      {
+        className: "User",
+        attributes: [{ name: "id", type: new TypeSet<string>(["str"]) }]
+      }
     ];
 
     const expected: ClassModel[] = [
@@ -58,11 +73,17 @@ describe("mergeClasses", () => {
 
   test("multiple classes with partial merging", () => {
     const objects: ClassModel[] = [
-      { className: "User", attributes: [{ name: "id", type: "int" }] },
-      { className: "User", attributes: [{ name: "email", type: "str" }] },
+      {
+        className: "User",
+        attributes: [{ name: "id", type: new TypeSet<string>(["int"]) }]
+      },
+      {
+        className: "User",
+        attributes: [{ name: "email", type: new TypeSet<string>(["str"]) }]
+      },
       {
         className: "Product",
-        attributes: [{ name: "price", type: "float" }]
+        attributes: [{ name: "price", type: new TypeSet<string>(["float"]) }]
       }
     ];
 
@@ -76,7 +97,7 @@ describe("mergeClasses", () => {
       },
       {
         className: "Product",
-        attributes: [{ name: "price", type: "float" }]
+        attributes: [{ name: "price", type: new TypeSet<string>(["float"]) }]
       }
     ];
 
@@ -85,10 +106,22 @@ describe("mergeClasses", () => {
 
   test("multiple levels of duplication", () => {
     const objects: ClassModel[] = [
-      { className: "User", attributes: [{ name: "id", type: "int" }] },
-      { className: "User", attributes: [{ name: "email", type: "str" }] },
-      { className: "User", attributes: [{ name: "email", type: "str" }] },
-      { className: "User", attributes: [{ name: "id", type: "int" }] }
+      {
+        className: "User",
+        attributes: [{ name: "id", type: new TypeSet<string>(["int"]) }]
+      },
+      {
+        className: "User",
+        attributes: [{ name: "email", type: new TypeSet<string>(["str"]) }]
+      },
+      {
+        className: "User",
+        attributes: [{ name: "email", type: new TypeSet<string>(["str"]) }]
+      },
+      {
+        className: "User",
+        attributes: [{ name: "id", type: new TypeSet<string>(["int"]) }]
+      }
     ];
 
     const expected: ClassModel[] = [

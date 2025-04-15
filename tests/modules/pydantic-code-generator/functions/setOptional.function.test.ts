@@ -8,22 +8,22 @@ describe("setOptional", () => {
       {
         className: "User",
         attributes: [
-          { name: "id", type: "int" },
-          { name: "name", type: "str" }
+          { name: "id", type: new TypeSet<string>(["int"]) },
+          { name: "name", type: new TypeSet<string>(["str"]) }
         ]
       },
       {
         className: "User",
         attributes: [
-          { name: "id", type: "int" },
-          { name: "email", type: "str" }
+          { name: "id", type: new TypeSet<string>(["int"]) },
+          { name: "email", type: new TypeSet<string>(["str"]) }
         ]
       },
       {
         className: "Admin", // Classe diferente, deve ser ignorada
         attributes: [
-          { name: "id", type: "int" },
-          { name: "permissions", type: "str" }
+          { name: "id", type: new TypeSet<string>(["int"]) },
+          { name: "permissions", type: new TypeSet<string>(["str"]) }
         ]
       }
     ];
@@ -31,32 +31,32 @@ describe("setOptional", () => {
     const classModel: ClassModel = {
       className: "User",
       attributes: [
-        { name: "id", type: "int" },
-        { name: "name", type: "str" },
-        { name: "email", type: "str" }
+        { name: "id", type: new TypeSet<string>(["int"]) },
+        { name: "name", type: new TypeSet<string>(["str"]) },
+        { name: "email", type: new TypeSet<string>(["str"]) }
       ]
     };
 
     setOptional(classes, classModel);
 
     expect(classModel.attributes).toEqual([
-      { name: "id", type: "int" },
+      { name: "id", type: new TypeSet<string>(["int"]) },
       { name: "name", type: new TypeSet<string>(["str", "Any"]) },
       { name: "email", type: new TypeSet<string>(["str", "Any"]) }
     ]);
 
     // Verifica que as classes originais não foram alteradas
     expect(classes[0].attributes).toEqual([
-      { name: "id", type: "int" },
-      { name: "name", type: "str" }
+      { name: "id", type: new TypeSet<string>(["int"]) },
+      { name: "name", type: new TypeSet<string>(["str"]) }
     ]);
     expect(classes[1].attributes).toEqual([
-      { name: "id", type: "int" },
-      { name: "email", type: "str" }
+      { name: "id", type: new TypeSet<string>(["int"]) },
+      { name: "email", type: new TypeSet<string>(["str"]) }
     ]);
     expect(classes[2].attributes).toEqual([
-      { name: "id", type: "int" },
-      { name: "permissions", type: "str" }
+      { name: "id", type: new TypeSet<string>(["int"]) },
+      { name: "permissions", type: new TypeSet<string>(["str"]) }
     ]);
   });
 
@@ -64,48 +64,52 @@ describe("setOptional", () => {
     const classes: ClassModel[] = [
       {
         className: "User",
-        attributes: [{ name: "id", type: "int" }]
+        attributes: [{ name: "id", type: new TypeSet<string>(["int"]) }]
       },
       {
         className: "User",
-        attributes: [{ name: "id", type: "int" }]
+        attributes: [{ name: "id", type: new TypeSet<string>(["int"]) }]
       },
       {
         className: "Product", // Deve ser ignorada
-        attributes: [{ name: "price", type: "float" }]
+        attributes: [{ name: "price", type: new TypeSet<string>(["float"]) }]
       }
     ];
 
     const classModel: ClassModel = {
       className: "User",
-      attributes: [{ name: "id", type: "int" }]
+      attributes: [{ name: "id", type: new TypeSet<string>(["int"]) }]
     };
 
     setOptional(classes, classModel);
 
-    expect(classModel.attributes).toEqual([{ name: "id", type: "int" }]);
+    expect(classModel.attributes).toEqual([
+      { name: "id", type: new TypeSet<string>(["int"]) }
+    ]);
   });
 
   test("Should not modify classModel if no matching classes are found", () => {
     const classes: ClassModel[] = [
       {
         className: "Order",
-        attributes: [{ name: "total", type: "float" }]
+        attributes: [{ name: "total", type: new TypeSet<string>(["float"]) }]
       },
       {
         className: "Customer",
-        attributes: [{ name: "name", type: "str" }]
+        attributes: [{ name: "name", type: new TypeSet<string>(["str"]) }]
       }
     ];
 
     const classModel: ClassModel = {
       className: "User",
-      attributes: [{ name: "username", type: "str" }]
+      attributes: [{ name: "username", type: new TypeSet<string>(["str"]) }]
     };
 
     setOptional(classes, classModel);
 
-    expect(classModel.attributes).toEqual([{ name: "username", type: "str" }]);
+    expect(classModel.attributes).toEqual([
+      { name: "username", type: new TypeSet<string>(["str"]) }
+    ]);
   });
 
   test("Should correctly handle attributes with existing Set<string> types", () => {
@@ -114,7 +118,7 @@ describe("setOptional", () => {
         className: "Product",
         attributes: [
           { name: "price", type: new TypeSet<string>(["float", "int"]) },
-          { name: "stock", type: "int" }
+          { name: "stock", type: new TypeSet<string>(["int"]) }
         ]
       },
       {
@@ -125,7 +129,7 @@ describe("setOptional", () => {
       },
       {
         className: "Order", // Deve ser ignorado
-        attributes: [{ name: "status", type: "str" }]
+        attributes: [{ name: "status", type: new TypeSet<string>(["str"]) }]
       }
     ];
 
@@ -133,7 +137,7 @@ describe("setOptional", () => {
       className: "Product",
       attributes: [
         { name: "price", type: new TypeSet<string>(["float", "int"]) },
-        { name: "stock", type: "int" }
+        { name: "stock", type: new TypeSet<string>(["int"]) }
       ]
     };
 
@@ -149,15 +153,15 @@ describe("setOptional", () => {
     const classes: ClassModel[] = [
       {
         className: "Device",
-        attributes: [{ name: "version", type: "int" }]
+        attributes: [{ name: "version", type: new TypeSet<string>(["int"]) }]
       },
       {
         className: "Device",
-        attributes: [{ name: "model", type: "str" }]
+        attributes: [{ name: "model", type: new TypeSet<string>(["str"]) }]
       },
       {
         className: "User", // Deve ser ignorada
-        attributes: [{ name: "username", type: "str" }]
+        attributes: [{ name: "username", type: new TypeSet<string>(["str"]) }]
       }
     ];
 
@@ -180,26 +184,26 @@ describe("setOptional", () => {
       {
         className: "Employee",
         attributes: [
-          { name: "name", type: "str" },
-          { name: "salary", type: "float" }
+          { name: "name", type: new TypeSet<string>(["str"]) },
+          { name: "salary", type: new TypeSet<string>(["float"]) }
         ]
       },
       {
         className: "Employee",
-        attributes: [{ name: "name", type: "str" }]
+        attributes: [{ name: "name", type: new TypeSet<string>(["str"]) }]
       },
       {
         className: "Employee",
         attributes: [
-          { name: "name", type: "str" },
-          { name: "bonus", type: "int" }
+          { name: "name", type: new TypeSet<string>(["str"]) },
+          { name: "bonus", type: new TypeSet<string>(["int"]) }
         ]
       },
       {
         className: "Manager", // Deve ser ignorada
         attributes: [
-          { name: "department", type: "str" },
-          { name: "budget", type: "float" }
+          { name: "department", type: new TypeSet<string>(["str"]) },
+          { name: "budget", type: new TypeSet<string>(["float"]) }
         ]
       }
     ];
@@ -207,16 +211,16 @@ describe("setOptional", () => {
     const classModel: ClassModel = {
       className: "Employee",
       attributes: [
-        { name: "name", type: "str" },
-        { name: "salary", type: "float" },
-        { name: "bonus", type: "int" }
+        { name: "name", type: new TypeSet<string>(["str"]) },
+        { name: "salary", type: new TypeSet<string>(["float"]) },
+        { name: "bonus", type: new TypeSet<string>(["int"]) }
       ]
     };
 
     setOptional(classes, classModel);
 
     expect(classModel.attributes).toEqual([
-      { name: "name", type: "str" },
+      { name: "name", type: new TypeSet<string>(["str"]) },
       { name: "salary", type: new TypeSet<string>(["float", "Any"]) },
       { name: "bonus", type: new TypeSet<string>(["int", "Any"]) }
     ]);

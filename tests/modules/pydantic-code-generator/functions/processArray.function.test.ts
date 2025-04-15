@@ -377,4 +377,34 @@ describe("processArray", () => {
       newAttribute: { name: "user", type: new ListSet<string>(["User"]) }
     });
   });
+
+  test("should handle objects with null attributes", () => {
+    const input = [
+      {
+        id: 1,
+        active: null,
+        score: 12.5
+      },
+      {
+        id: "02",
+        active: null
+      }
+    ];
+
+    const result = processArray(input, "users");
+
+    expect(result).toEqual({
+      generatedClassModels: [
+        {
+          className: "Users",
+          attributes: [
+            { name: "id", type: new TypeSet<string>(["int", "str"]) },
+            { name: "active", type: new TypeSet<string>(["Any"]) },
+            { name: "score", type: new TypeSet<string>(["Any", "float"]) }
+          ]
+        }
+      ],
+      newAttribute: { name: "users", type: new ListSet<string>(["Users"]) }
+    });
+  });
 });

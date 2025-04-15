@@ -6,31 +6,31 @@ describe("mergeAttributes", () => {
   test("Should add unique attributes from classModel to existingClass", () => {
     const existingClass: ClassModel = {
       className: "Person",
-      attributes: [{ name: "name", type: "str" }]
+      attributes: [{ name: "name", type: new TypeSet<string>(["str"]) }]
     };
 
     const classModel: ClassModel = {
       className: "Person",
-      attributes: [{ name: "age", type: "int" }]
+      attributes: [{ name: "age", type: new TypeSet<string>(["int"]) }]
     };
 
     mergeAttributes(classModel, existingClass);
 
     expect(existingClass.attributes).toEqual([
-      { name: "name", type: "str" },
-      { name: "age", type: "int" }
+      { name: "name", type: new TypeSet<string>(["str"]) },
+      { name: "age", type: new TypeSet<string>(["int"]) }
     ]);
   });
 
   test("Should merge types when both attributes are strings", () => {
     const existingClass: ClassModel = {
       className: "Person",
-      attributes: [{ name: "name", type: "str" }]
+      attributes: [{ name: "name", type: new TypeSet<string>(["str"]) }]
     };
 
     const classModel: ClassModel = {
       className: "Person",
-      attributes: [{ name: "name", type: "int" }]
+      attributes: [{ name: "name", type: new TypeSet<string>(["int"]) }]
     };
 
     mergeAttributes(classModel, existingClass);
@@ -44,16 +44,16 @@ describe("mergeAttributes", () => {
     const existingClass: ClassModel = {
       className: "Employee",
       attributes: [
-        { name: "id", type: "int" },
-        { name: "salary", type: "float" }
+        { name: "id", type: new TypeSet<string>(["int"]) },
+        { name: "salary", type: new TypeSet<string>(["float"]) }
       ]
     };
 
     const classModel: ClassModel = {
       className: "Employee",
       attributes: [
-        { name: "id", type: "str" },
-        { name: "department", type: "str" }
+        { name: "id", type: new TypeSet<string>(["str"]) },
+        { name: "department", type: new TypeSet<string>(["str"]) }
       ]
     };
 
@@ -61,15 +61,15 @@ describe("mergeAttributes", () => {
 
     expect(existingClass.attributes).toEqual([
       { name: "id", type: new TypeSet<string>(["int", "str"]) },
-      { name: "salary", type: "float" },
-      { name: "department", type: "str" }
+      { name: "salary", type: new TypeSet<string>(["float"]) },
+      { name: "department", type: new TypeSet<string>(["str"]) }
     ]);
   });
 
   test("Should not modify existingClass if classModel has no new attributes", () => {
     const existingClass: ClassModel = {
       className: "Car",
-      attributes: [{ name: "brand", type: "str" }]
+      attributes: [{ name: "brand", type: new TypeSet<string>(["str"]) }]
     };
 
     const classModel: ClassModel = {
@@ -79,7 +79,9 @@ describe("mergeAttributes", () => {
 
     mergeAttributes(classModel, existingClass);
 
-    expect(existingClass.attributes).toEqual([{ name: "brand", type: "str" }]);
+    expect(existingClass.attributes).toEqual([
+      { name: "brand", type: new TypeSet<string>(["str"]) }
+    ]);
   });
 
   test("Should correctly merge when attributes have Set<string> as type", () => {
@@ -115,7 +117,7 @@ describe("mergeAttributes", () => {
 
     const classModel: ClassModel = {
       className: "Device",
-      attributes: [{ name: "version", type: "int" }]
+      attributes: [{ name: "version", type: new TypeSet<string>(["int"]) }]
     };
 
     mergeAttributes(classModel, existingClass);
@@ -135,7 +137,7 @@ describe("mergeAttributes", () => {
 
     const classModel: ClassModel = {
       className: "User",
-      attributes: [{ name: "status", type: "int" }]
+      attributes: [{ name: "status", type: new TypeSet<string>(["int"]) }]
     };
 
     mergeAttributes(classModel, existingClass);
@@ -155,7 +157,7 @@ describe("mergeAttributes", () => {
 
     const classModel: ClassModel = {
       className: "Account",
-      attributes: [{ name: "balance", type: "int" }]
+      attributes: [{ name: "balance", type: new TypeSet<string>(["int"]) }]
     };
 
     mergeAttributes(classModel, existingClass);

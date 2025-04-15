@@ -51,4 +51,8 @@ describe("getType", () => {
   test("Should return 'float' for a floating-point literal", () => {
     expect(getType(1.23)).toBe("float");
   });
+
+  test('Should return "Any" for a null input', () => {
+    expect(getType(null)).toBe("Any");
+  });
 });

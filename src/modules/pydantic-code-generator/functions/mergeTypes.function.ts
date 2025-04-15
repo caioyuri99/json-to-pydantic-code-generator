@@ -2,28 +2,10 @@ import { ListSet } from "../classes/ListSet.class";
 import { TypeSet } from "../classes/TypeSet.class";
 
 export function mergeTypes(
-  oldTypes: string | TypeSet<string> | ListSet<string>,
-  typeToAdd: string | TypeSet<string> | ListSet<string>
-): string | TypeSet<string> | ListSet<string> {
-  if (typeof oldTypes === "string") {
-    if (typeof typeToAdd === "string") {
-      if (oldTypes === typeToAdd) {
-        return oldTypes;
-      }
-    }
-
-    if (typeToAdd instanceof TypeSet) {
-      return typeToAdd.add(oldTypes);
-    }
-
-    return new TypeSet<string>([oldTypes, typeToAdd]);
-  }
-
+  oldTypes: TypeSet<string> | ListSet<string>,
+  typeToAdd: TypeSet<string> | ListSet<string>
+): TypeSet<string> | ListSet<string> {
   if (oldTypes instanceof ListSet) {
-    if (typeof typeToAdd === "string") {
-      return new TypeSet<string>([oldTypes, typeToAdd]);
-    }
-
     if (typeToAdd instanceof ListSet) {
       return new ListSet<string>([...oldTypes, ...typeToAdd]);
     }

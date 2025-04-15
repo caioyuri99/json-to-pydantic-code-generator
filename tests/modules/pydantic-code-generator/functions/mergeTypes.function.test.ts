@@ -3,35 +3,7 @@ import { TypeSet } from "../../../../src/modules/pydantic-code-generator/classes
 import { mergeTypes } from "../../../../src/modules/pydantic-code-generator/functions/mergeTypes.function";
 
 describe("mergeTypes", () => {
-  test("should return a Set containing two different strings", () => {
-    expect(mergeTypes("int", "str")).toEqual(
-      new TypeSet<string>(["int", "str"])
-    );
-  });
-
-  test("should return the same string if both inputs are identical", () => {
-    expect(mergeTypes("int", "int")).toBe("int");
-  });
-
-  test("should add a string to an existing Set", () => {
-    const existingSet = new TypeSet<string>(["int"]);
-    const result = mergeTypes(existingSet, "str");
-    expect(result).toEqual(new TypeSet<string>(["int", "str"]));
-  });
-
-  test("should not merge 'int' outside ListSet with 'float' inside ListSet", () => {
-    const listSet = new ListSet<string>(["float"]);
-    const result = mergeTypes(listSet, "int");
-    expect(result).toEqual(new TypeSet<string>(["int", listSet]));
-  });
-
-  test("should return a Set containing a string and a ListSet", () => {
-    const listSet = new ListSet<string>(["float"]);
-    const result = mergeTypes("int", listSet);
-    expect(result).toEqual(new TypeSet<string>(["int", listSet]));
-  });
-
-  test("should merge two Sets", () => {
+  test("should merge two TypeSets", () => {
     const set1 = new TypeSet<string>(["int", "str"]);
     const set2 = new TypeSet<string>(["bool", "float"]);
     const result = mergeTypes(set1, set2);
@@ -100,14 +72,6 @@ describe("mergeTypes", () => {
         new ListSet<string>(["str", "float"])
       ])
     );
-  });
-
-  test("should add oldTypes to typeToAdd when oldTypes is a string and typeToAdd is a TypeSet and then return typeToAdd", () => {
-    const oldTypes = "str";
-    const typeToAdd = new TypeSet<string>(["int"]);
-
-    const result = mergeTypes(oldTypes, typeToAdd);
-    expect(result).toEqual(new TypeSet<string>(["int", "str"]));
   });
 
   test("should add oldTypes to typeToAdd when oldTypes is a ListSet and typeToAdd is a TypeSet and the return typeToAdd", () => {

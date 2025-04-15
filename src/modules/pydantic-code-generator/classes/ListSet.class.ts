@@ -16,7 +16,9 @@ export class ListSet<T> extends Set<T | ListSet<T>> {
     return `ListSet { ${[...this].map(String).join(", ")}}`;
   }
 
-  equals(other: Set<T | ListSet<T>>): boolean {
+  equals(other: ListSet<T>): boolean {
+    if (!(other instanceof ListSet)) return false;
+
     if (this.size !== other.size) return false;
 
     const used = new Set();

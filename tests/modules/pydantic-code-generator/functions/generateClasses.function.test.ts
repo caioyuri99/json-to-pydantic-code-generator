@@ -155,4 +155,170 @@ describe("generateClasses", () => {
       }
     ]);
   });
+
+  test("should handle duplicated class names", () => {
+    const json = {
+      user: {
+        profile: {
+          info: { age: 30, name: "Alice" }
+        },
+        backup: {
+          info: { email: "a@b.com" }
+        }
+      }
+    };
+
+    const result = generateClasses(json);
+
+    expect(result).toEqual([
+      {
+        className: "Info1",
+        attributes: [{ name: "email", type: new TypeSet<string>(["str"]) }]
+      },
+      {
+        className: "Backup",
+        attributes: [{ name: "info", type: "Info1" }]
+      },
+      {
+        className: "Info",
+        attributes: [
+          { name: "age", type: new TypeSet<string>(["int"]) },
+          { name: "name", type: new TypeSet<string>(["str"]) }
+        ]
+      },
+      {
+        className: "Profile",
+        attributes: [{ name: "info", type: new TypeSet<string>(["Info"]) }]
+      },
+      {
+        className: "User",
+        attributes: [
+          { name: "profile", type: new TypeSet<string>(["Profile"]) },
+          { name: "backup", type: new TypeSet<string>(["Backup"]) }
+        ]
+      },
+      {
+        className: "Model",
+        attributes: [
+          {
+            name: "user",
+            type: new TypeSet<string>(["User"])
+          }
+        ]
+      }
+    ]);
+  });
+
+  test("should handle objects with missing attributes and mixed types", () => {
+    const json = {
+      users: [
+        {
+          id: 1,
+          active: true,
+          score: 12.5
+        },
+        {
+          id: "02",
+          active: null
+        }
+      ]
+    };
+
+    const result = generateClasses(json);
+
+    expect(result).toEqual([
+      {
+        className: "Users",
+        attributes: [
+          { name: "id", type: new TypeSet<string>(["int", "str"]) },
+          { name: "active", type: new TypeSet<string>(["Any", "bool"]) },
+          { name: "score", type: new TypeSet<string>(["Any", "float"]) }
+        ]
+      },
+      {
+        className: "Model",
+        attributes: [{ name: "users", type: new ListSet<string>(["Users"]) }]
+      }
+    ]);
+  });
+
+  test("should handle list of lists", () => {
+    const json = {
+      matrix: [
+        [
+          [1, 2],
+          [3, 4]
+        ],
+        [[5, 6]]
+      ]
+    };
+
+    const result = generateClasses(json);
+
+    expect(result).toEqual([
+      {
+        className: "Model",
+        attributes: [
+          {
+            name: "matrix",
+            type: new ListSet<string>([
+              new ListSet<string>([new ListSet<string>(["int"])])
+            ])
+          }
+        ]
+      }
+    ]);
+  });
+
+  test("should handle heterogeneus list of objects", () => {
+    const json = {
+      items: [
+        { name: "item1", price: 10 },
+        { name: "item2", discount: true },
+        { tags: ["sale", "popular"] }
+      ]
+    };
+
+    const result = generateClasses(json);
+
+    expect(result).toEqual([
+      {
+        className: "Items",
+        attributes: [
+          { name: "name", type: new TypeSet<string>(["Any", "str"]) },
+          { name: "price", type: new TypeSet<string>(["Any", "int"]) },
+          { name: "discount", type: new TypeSet<string>(["Any", "bool"]) },
+          {
+            name: "tags",
+            type: new TypeSet<string>(["Any", new ListSet<string>(["str"])])
+          }
+        ]
+      },
+      {
+        className: "Model",
+        attributes: [{ name: "items", type: new ListSet<string>(["Items"]) }]
+      }
+    ]);
+  });
+
+  test("should handle high depth + duplicated names", () => {
+    const json = {
+      level1: {
+        level2: {
+          data: {
+            value: 1
+          }
+        },
+        mirror: {
+          data: {
+            value: "one"
+          }
+        }
+      }
+    };
+
+    const result = generateClasses(json);
+
+    expect(result).toEqual([]);
+  });
 });
