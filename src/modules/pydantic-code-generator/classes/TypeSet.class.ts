@@ -1,6 +1,6 @@
 import { ListSet } from "./ListSet.class";
 
-export class TypeSet<T> extends Set<T | ListSet<T>> {
+class TypeSet<T> extends Set<T | ListSet<T>> {
   add(value: T | ListSet<T>): this {
     if (value instanceof ListSet) {
       const alreadyHasListSet = [...this].find((v) => v instanceof ListSet);
@@ -51,3 +51,5 @@ export class TypeSet<T> extends Set<T | ListSet<T>> {
     return true;
   }
 }
+
+export { TypeSet };

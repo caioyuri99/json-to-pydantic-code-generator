@@ -48,28 +48,6 @@ function dedent(strings: TemplateStringsArray, ...values: any[]): string {
     .trim();
 }
 
-function unwrapList(s: string): {
-  innerType: string;
-  listCount: number;
-} {
-  let listCount = 0;
-
-  while (s.startsWith("List[")) {
-    s = s.slice(5, -1);
-    listCount++;
-  }
-
-  return { innerType: s, listCount };
-}
-
-function wrapList(s: string, listCount: number): string {
-  for (let i = 0; i < listCount; i++) {
-    s = `List[${s}]`;
-  }
-
-  return s;
-}
-
 function serializeClasses(classes: ClassModel[]): any[] {
   return classes.map((cls) => ({
     className: cls.className,
@@ -117,8 +95,6 @@ export {
   uniqueElements,
   capitalize,
   dedent,
-  unwrapList,
-  wrapList,
   serializeClasses,
   getNonDuplicateName,
   getArrayClassName,

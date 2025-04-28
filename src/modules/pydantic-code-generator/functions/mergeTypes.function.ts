@@ -1,7 +1,7 @@
 import { ListSet } from "../classes/ListSet.class";
 import { TypeSet } from "../classes/TypeSet.class";
 
-export function mergeTypes(
+function mergeTypes(
   oldTypes: TypeSet<string> | ListSet<string>,
   typeToAdd: TypeSet<string> | ListSet<string>
 ): TypeSet<string> | ListSet<string> {
@@ -23,3 +23,5 @@ export function mergeTypes(
 
   return oldTypes.add(typeToAdd);
 }
+
+export { mergeTypes };

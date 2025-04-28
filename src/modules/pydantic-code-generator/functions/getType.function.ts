@@ -1,4 +1,4 @@
-export function getType(value: any): string {
+function getType(value: any): string {
   switch (typeof value) {
     case "string":
       return "str";
@@ -17,3 +17,5 @@ export function getType(value: any): string {
       return "Any";
   }
 }
+
+export { getType };

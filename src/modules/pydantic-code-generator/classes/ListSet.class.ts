@@ -1,4 +1,4 @@
-export class ListSet<T> extends Set<T | ListSet<T>> {
+class ListSet<T> extends Set<T | ListSet<T>> {
   add(value: T | ListSet<T>): this {
     if (value instanceof ListSet) {
       const alreadyHasListSet = [...this].find((v) => v instanceof ListSet);
@@ -49,3 +49,5 @@ export class ListSet<T> extends Set<T | ListSet<T>> {
     return true;
   }
 }
+
+export { ListSet };

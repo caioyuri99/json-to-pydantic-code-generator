@@ -2,11 +2,7 @@ import { ClassModel } from "../types/ClassModel.type";
 import { getType } from "./getType.function";
 import { processArray } from "./processArray.function";
 import { ClassAttribute } from "../types/ClassAttribute.type";
-import {
-  capitalize,
-  getArrayClassName,
-  getNonDuplicateName
-} from "../utils/utils.module";
+import { capitalize, getNonDuplicateName } from "../utils/utils.module";
 import { TypeSet } from "../classes/TypeSet.class";
 
 // TODO: adicionar flag preferClassReuse: define se vai reutilizar classes geradas anteriormente para tipar as novas classes geradas

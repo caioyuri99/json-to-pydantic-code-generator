@@ -1,6 +1,8 @@
 import { ClassAttribute } from "./ClassAttribute.type";
 
-export type ClassModel = {
+type ClassModel = {
   className: string;
   attributes: ClassAttribute[];
 };
+
+export { ClassModel };

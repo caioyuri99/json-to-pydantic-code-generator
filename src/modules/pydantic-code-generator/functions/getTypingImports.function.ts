@@ -1,4 +1,4 @@
-export function getTypingImports(s: string): string {
+function getTypingImports(s: string): string {
   const types = [];
 
   if (s.match(/(?<=^|\s)Any(?=\s|$|\])|\[Any\]/g)) {
@@ -23,3 +23,5 @@ export function getTypingImports(s: string): string {
 
   return `from typing import ${types.join(", ")}`;
 }
+
+export { getTypingImports };
