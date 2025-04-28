@@ -2,17 +2,26 @@ import { ClassModel } from "../types/ClassModel.type";
 import { getType } from "./getType.function";
 import { processArray } from "./processArray.function";
 import { ClassAttribute } from "../types/ClassAttribute.type";
-import { capitalize, unwrapList, wrapList } from "../utils/utils.module";
+import {
+  capitalize,
+  getArrayClassName,
+  getNonDuplicateName
+} from "../utils/utils.module";
+import { TypeSet } from "../classes/TypeSet.class";
 
 // TODO: adicionar flag preferClassReuse: define se vai reutilizar classes geradas anteriormente para tipar as novas classes geradas
 // TODO: adicionar flag mergeEqualNameClasses: define se vai fazer o merge de classes com nomes iguais
 
-export function generateClasses(
+function generateClasses(
   json: any,
-  name: string = "Model"
+  name: string = "Model",
+  existentClassNames: string[] = []
 ): ClassModel[] {
   const res: ClassModel[] = [];
-  const obj: ClassModel = { className: name, attributes: [] };
+  const obj: ClassModel = {
+    className: name,
+    attributes: []
+  };
 
   if (typeof json === "object" && Array.isArray(json)) {
     if (
@@ -22,155 +31,41 @@ export function generateClasses(
       throw new Error("Input must be an object or an array of objects");
     }
 
-    return processArray(json).generatedClassModels;
+    return processArray(json, undefined, undefined, true).generatedClassModels;
   }
 
   for (const [key, value] of Object.entries(json)) {
+    const ecn = existentClassNames.concat(res.map((e) => e.className));
+    ecn.push(name);
+
     if (value && typeof value === "object" && !Array.isArray(value)) {
-      const generatedClasses = generateClasses(value, capitalize(key));
+      const generatedClasses = generateClasses(
+        value,
+        getNonDuplicateName(capitalize(key), ecn),
+        ecn
+      );
 
-      for (const [index, generatedClass] of generatedClasses.entries()) {
-        const existingClassWithSameAttrs = res.find(
-          (c) =>
-            c.attributes.length === generatedClass.attributes.length &&
-            c.attributes.every((attr) =>
-              generatedClass.attributes.find(
-                (a) => a.name === attr.name && a.type === attr.type
-              )
-            )
-        );
-
-        if (existingClassWithSameAttrs) {
-          for (let i = index + 1; i < generatedClasses.length; i++) {
-            for (const attr of generatedClasses[i].attributes) {
-              if (attr.type === generatedClass.className) {
-                attr.type = existingClassWithSameAttrs.className;
-              }
-            }
-          }
-
-          generatedClass.className = existingClassWithSameAttrs.className;
-        } else {
-          const existingClass = res.find(
-            (c) => c.className === generatedClass.className
-          );
-
-          if (!existingClass) {
-            res.push(generatedClass);
-          } else {
-            let i = 1;
-            let newClassName = `${generatedClass.className}${i}`;
-
-            while (res.find((c) => c.className === newClassName)) {
-              i++;
-              newClassName = `${generatedClass.className}${i}`;
-            }
-
-            for (let i = index + 1; i < generatedClasses.length; i++) {
-              for (const attr of generatedClasses[i].attributes) {
-                if (attr.type === generatedClass.className) {
-                  attr.type = newClassName;
-                }
-              }
-            }
-
-            generatedClass.className = newClassName;
-
-            res.push(generatedClass);
-          }
-        }
-      }
+      res.push(...generatedClasses);
 
       const lastGeneratedClass = generatedClasses.at(-1);
 
       if (lastGeneratedClass) {
         obj.attributes.push({
           name: key,
-          type: lastGeneratedClass.className
+          type: new TypeSet([lastGeneratedClass.className])
         });
       }
     } else if (Array.isArray(value)) {
-      const processedArray = processArray(value, key);
+      const processedArray = processArray(value, key, ecn);
       const generatedClassModels = processedArray.generatedClassModels;
+
+      res.push(...generatedClassModels);
+
       const newAttribute = processedArray.newAttribute;
-
-      if (processedArray.generatedClassModels.length > 0) {
-        for (const [index, generatedClass] of generatedClassModels.entries()) {
-          const existingClassWithSameAttrs = res.find(
-            (c) =>
-              c.attributes.length === generatedClass.attributes.length &&
-              c.attributes.every((attr) =>
-                generatedClass.attributes.find(
-                  (a: ClassAttribute) =>
-                    a.name === attr.name && a.type === attr.type
-                )
-              )
-          );
-
-          if (existingClassWithSameAttrs) {
-            for (let i = index + 1; i < generatedClassModels.length; i++) {
-              for (const attr of generatedClassModels[i].attributes) {
-                if (attr.type === generatedClass.className) {
-                  attr.type = existingClassWithSameAttrs.className;
-                }
-              }
-            }
-
-            const { innerType, listCount } = unwrapList(
-              newAttribute.type as string
-            );
-
-            if (innerType === generatedClass.className) {
-              newAttribute.type = wrapList(
-                existingClassWithSameAttrs.className,
-                listCount
-              );
-            }
-
-            generatedClass.className = existingClassWithSameAttrs.className;
-          } else {
-            //TODO: verificar se esse bloco está funcionando corretamente
-
-            const existingClass = res.find(
-              (c) => c.className === generatedClass.className
-            );
-
-            if (!existingClass) {
-              res.push(generatedClass);
-            } else {
-              let i = 1;
-              let newClassName = `${generatedClass.className}${i}`;
-
-              while (res.find((c) => c.className === newClassName)) {
-                i++;
-                newClassName = `${generatedClass.className}${i}`;
-              }
-
-              const generatedType = `List[${generatedClass.className}]`;
-              const existingType = `List[${newClassName}]`;
-
-              for (let i = index + 1; i < generatedClassModels.length; i++) {
-                for (const attr of generatedClassModels[i].attributes) {
-                  if (attr.type === generatedType) {
-                    attr.type = existingType;
-                  }
-                }
-              }
-
-              if (newAttribute.type === generatedType) {
-                newAttribute.type = existingType;
-              }
-              generatedClass.className = newClassName;
-
-              res.push(generatedClass);
-            }
-          }
-        }
-      }
 
       obj.attributes.push(newAttribute);
     } else {
-      obj.attributes.push({ name: key, type: getType(value) });
+      obj.attributes.push({ name: key, type: new TypeSet([getType(value)]) });
     }
   }
 
@@ -178,3 +73,5 @@ export function generateClasses(
 
   return res;
 }
+
+export { generateClasses };

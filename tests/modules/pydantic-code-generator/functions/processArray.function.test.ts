@@ -1,6 +1,7 @@
 import { ListSet } from "../../../../src/modules/pydantic-code-generator/classes/ListSet.class";
 import { TypeSet } from "../../../../src/modules/pydantic-code-generator/classes/TypeSet.class";
 import { processArray } from "../../../../src/modules/pydantic-code-generator/functions/processArray.function";
+import { serializeClasses } from "../../../../src/modules/pydantic-code-generator/utils/utils.module";
 
 describe("processArray", () => {
   test("should return ClassAttribute with ListSet containing 'int' for homogeneous number array", () => {
@@ -62,19 +63,23 @@ describe("processArray", () => {
       { id: 2, name: "Bob" }
     ];
 
-    const result = processArray(input, "user");
+    const { generatedClassModels, newAttribute } = processArray(input, "user");
 
-    expect(result).toEqual({
-      generatedClassModels: [
+    expect(serializeClasses(generatedClassModels)).toEqual(
+      serializeClasses([
         {
-          className: "User",
+          className: "UserItem",
           attributes: [
-            { name: "id", type: "int" },
-            { name: "name", type: "str" }
+            { name: "id", type: new TypeSet(["int"]) },
+            { name: "name", type: new TypeSet(["str"]) }
           ]
         }
-      ],
-      newAttribute: { name: "user", type: new ListSet<string>(["User"]) }
+      ])
+    );
+
+    expect(newAttribute).toEqual({
+      name: "user",
+      type: new ListSet<string>(["UserItem"])
     });
   });
 
@@ -90,26 +95,30 @@ describe("processArray", () => {
       }
     ];
 
-    const result = processArray(input, "user");
+    const { generatedClassModels, newAttribute } = processArray(input, "user");
 
-    expect(result).toEqual({
-      generatedClassModels: [
+    expect(serializeClasses(generatedClassModels)).toEqual(
+      serializeClasses([
         {
           className: "Profile",
           attributes: [
-            { name: "age", type: "int" },
-            { name: "city", type: "str" }
+            { name: "age", type: new TypeSet(["int"]) },
+            { name: "city", type: new TypeSet(["str"]) }
           ]
         },
         {
-          className: "User",
+          className: "UserItem",
           attributes: [
-            { name: "id", type: "int" },
-            { name: "profile", type: "Profile" }
+            { name: "id", type: new TypeSet(["int"]) },
+            { name: "profile", type: new TypeSet(["Profile"]) }
           ]
         }
-      ],
-      newAttribute: { name: "user", type: new ListSet<string>(["User"]) }
+      ])
+    );
+
+    expect(newAttribute).toEqual({
+      name: "user",
+      type: new ListSet<string>(["UserItem"])
     });
   });
 
@@ -129,21 +138,21 @@ describe("processArray", () => {
     expect(result).toEqual({
       generatedClassModels: [
         {
-          className: "Friends",
+          className: "FriendsItem",
           attributes: [
-            { name: "name", type: "str" },
-            { name: "age", type: "int" }
+            { name: "name", type: new TypeSet(["str"]) },
+            { name: "age", type: new TypeSet(["int"]) }
           ]
         },
         {
-          className: "User",
+          className: "UserItem",
           attributes: [
-            { name: "id", type: "int" },
-            { name: "friends", type: new ListSet<string>(["Friends"]) }
+            { name: "id", type: new TypeSet(["int"]) },
+            { name: "friends", type: new ListSet<string>(["FriendsItem"]) }
           ]
         }
       ],
-      newAttribute: { name: "user", type: new ListSet<string>(["User"]) }
+      newAttribute: { name: "user", type: new ListSet<string>(["UserItem"]) }
     });
   });
 
@@ -158,14 +167,14 @@ describe("processArray", () => {
     expect(result).toEqual({
       generatedClassModels: [
         {
-          className: "User",
+          className: "UserItem",
           attributes: [
             { name: "id", type: new TypeSet<string>(["int", "str"]) },
-            { name: "name", type: "str" }
+            { name: "name", type: new TypeSet(["str"]) }
           ]
         }
       ],
-      newAttribute: { name: "user", type: new ListSet<string>(["User"]) }
+      newAttribute: { name: "user", type: new ListSet<string>(["UserItem"]) }
     });
   });
 
@@ -177,14 +186,14 @@ describe("processArray", () => {
     expect(result).toEqual({
       generatedClassModels: [
         {
-          className: "User",
+          className: "UserItem",
           attributes: [
-            { name: "id", type: "int" },
+            { name: "id", type: new TypeSet(["int"]) },
             { name: "name", type: new TypeSet<string>(["str", "Any"]) }
           ]
         }
       ],
-      newAttribute: { name: "user", type: new ListSet<string>(["User"]) }
+      newAttribute: { name: "user", type: new ListSet<string>(["UserItem"]) }
     });
   });
 
@@ -199,14 +208,14 @@ describe("processArray", () => {
     expect(result).toEqual({
       generatedClassModels: [
         {
-          className: "User",
+          className: "UserItem",
           attributes: [
-            { name: "id", type: "int" },
+            { name: "id", type: new TypeSet(["int"]) },
             { name: "tags", type: new ListSet<string>(["str"]) }
           ]
         }
       ],
-      newAttribute: { name: "user", type: new ListSet<string>(["User"]) }
+      newAttribute: { name: "user", type: new ListSet<string>(["UserItem"]) }
     });
   });
 
@@ -218,9 +227,9 @@ describe("processArray", () => {
     expect(result).toEqual({
       generatedClassModels: [
         {
-          className: "User",
+          className: "UserItem",
           attributes: [
-            { name: "id", type: "int" },
+            { name: "id", type: new TypeSet(["int"]) },
             {
               name: "values",
               type: new ListSet<string>(["bool", "int", "str"])
@@ -228,7 +237,7 @@ describe("processArray", () => {
           ]
         }
       ],
-      newAttribute: { name: "user", type: new ListSet<string>(["User"]) }
+      newAttribute: { name: "user", type: new ListSet<string>(["UserItem"]) }
     });
   });
 
@@ -248,9 +257,9 @@ describe("processArray", () => {
     expect(result).toEqual({
       generatedClassModels: [
         {
-          className: "User",
+          className: "UserItem",
           attributes: [
-            { name: "id", type: "int" },
+            { name: "id", type: new TypeSet(["int"]) },
             {
               name: "matrix",
               type: new ListSet<string>([new ListSet<string>(["int"])])
@@ -258,7 +267,7 @@ describe("processArray", () => {
           ]
         }
       ],
-      newAttribute: { name: "user", type: new ListSet<string>(["User"]) }
+      newAttribute: { name: "user", type: new ListSet<string>(["UserItem"]) }
     });
   });
 
@@ -278,9 +287,9 @@ describe("processArray", () => {
     expect(result).toEqual({
       generatedClassModels: [
         {
-          className: "User",
+          className: "UserItem",
           attributes: [
-            { name: "id", type: "int" },
+            { name: "id", type: new TypeSet(["int"]) },
             {
               name: "matrix",
               type: new ListSet<string>([
@@ -290,7 +299,7 @@ describe("processArray", () => {
           ]
         }
       ],
-      newAttribute: { name: "user", type: new ListSet<string>(["User"]) }
+      newAttribute: { name: "user", type: new ListSet<string>(["UserItem"]) }
     });
   });
 
@@ -299,30 +308,33 @@ describe("processArray", () => {
       { id: 1, metadata: { details: { verified: true, level: 5 } } }
     ];
 
-    const result = processArray(input, "user");
+    const { generatedClassModels, newAttribute } = processArray(input, "user");
 
-    expect(result).toEqual({
-      generatedClassModels: [
+    expect(serializeClasses(generatedClassModels)).toEqual(
+      serializeClasses([
         {
           className: "Details",
           attributes: [
-            { name: "verified", type: "bool" },
-            { name: "level", type: "int" }
+            { name: "verified", type: new TypeSet(["bool"]) },
+            { name: "level", type: new TypeSet(["int"]) }
           ]
         },
         {
           className: "Metadata",
-          attributes: [{ name: "details", type: "Details" }]
+          attributes: [{ name: "details", type: new TypeSet(["Details"]) }]
         },
         {
-          className: "User",
+          className: "UserItem",
           attributes: [
-            { name: "id", type: "int" },
-            { name: "metadata", type: "Metadata" }
+            { name: "id", type: new TypeSet(["int"]) },
+            { name: "metadata", type: new TypeSet(["Metadata"]) }
           ]
         }
-      ],
-      newAttribute: { name: "user", type: new ListSet<string>(["User"]) }
+      ])
+    );
+    expect(newAttribute).toEqual({
+      name: "user",
+      type: new ListSet<string>(["UserItem"])
     });
   });
 
@@ -334,21 +346,21 @@ describe("processArray", () => {
     expect(result).toEqual({
       generatedClassModels: [
         {
-          className: "Data",
-          attributes: [{ name: "value", type: "int" }]
+          className: "DataItem",
+          attributes: [{ name: "value", type: new TypeSet(["int"]) }]
         },
         {
-          className: "User",
+          className: "UserItem",
           attributes: [
-            { name: "id", type: "int" },
+            { name: "id", type: new TypeSet(["int"]) },
             {
               name: "data",
-              type: new ListSet<string>([new ListSet<string>(["Data"])])
+              type: new ListSet<string>([new ListSet<string>(["DataItem"])])
             }
           ]
         }
       ],
-      newAttribute: { name: "user", type: new ListSet<string>(["User"]) }
+      newAttribute: { name: "user", type: new ListSet<string>(["UserItem"]) }
     });
   });
 
@@ -360,21 +372,23 @@ describe("processArray", () => {
     expect(result).toEqual({
       generatedClassModels: [
         {
-          className: "Mixed",
-          attributes: [{ name: "value", type: "int" }]
+          className: "MixedItem",
+          attributes: [{ name: "value", type: new TypeSet(["int"]) }]
         },
         {
-          className: "User",
+          className: "UserItem",
           attributes: [
-            { name: "id", type: "int" },
+            { name: "id", type: new TypeSet(["int"]) },
             {
               name: "mixed",
-              type: new ListSet<string>([new ListSet<string>(["str", "Mixed"])])
+              type: new ListSet<string>([
+                new ListSet<string>(["str", "MixedItem"])
+              ])
             }
           ]
         }
       ],
-      newAttribute: { name: "user", type: new ListSet<string>(["User"]) }
+      newAttribute: { name: "user", type: new ListSet<string>(["UserItem"]) }
     });
   });
 
@@ -396,7 +410,7 @@ describe("processArray", () => {
     expect(result).toEqual({
       generatedClassModels: [
         {
-          className: "Users",
+          className: "UsersItem",
           attributes: [
             { name: "id", type: new TypeSet<string>(["int", "str"]) },
             { name: "active", type: new TypeSet<string>(["Any"]) },
@@ -404,7 +418,47 @@ describe("processArray", () => {
           ]
         }
       ],
-      newAttribute: { name: "users", type: new ListSet<string>(["Users"]) }
+      newAttribute: { name: "users", type: new ListSet<string>(["UsersItem"]) }
     });
+  });
+
+  test("should handle fromObjectArrayJson correctly (no List suffix)", () => {
+    const arr = [
+      { timestamp: "2021-01-01", status: "ok" },
+      { timestamp: "2021-01-02", status: "error" }
+    ];
+    const { generatedClassModels, newAttribute } = processArray(
+      arr,
+      "logs",
+      [],
+      true
+    );
+
+    expect(generatedClassModels).toHaveLength(1);
+    expect(generatedClassModels[0].className).toBe("Logs");
+    expect(newAttribute.name).toBe("logs");
+    expect([...newAttribute.type]).toEqual(["Logs"]);
+    expect(generatedClassModels).toEqual([
+      {
+        className: "Logs",
+        attributes: [
+          { name: "timestamp", type: new TypeSet(["str"]) },
+          { name: "status", type: new TypeSet(["str"]) }
+        ]
+      }
+    ]);
+  });
+
+  test("should generate non-duplicate names when needed", () => {
+    const arr = [{ id: 1 }, { id: 2 }];
+    const existentClassNames = ["IdsItem"];
+    const { generatedClassModels, newAttribute } = processArray(
+      arr,
+      "ids",
+      existentClassNames
+    );
+
+    expect(generatedClassModels[0].className).toBe("IdsItem1");
+    expect([...newAttribute.type]).toEqual(["IdsItem1"]);
   });
 });

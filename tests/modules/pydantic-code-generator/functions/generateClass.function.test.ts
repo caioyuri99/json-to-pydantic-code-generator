@@ -20,7 +20,7 @@ describe("generateClass", () => {
   test("Should generate a class with one attribute", () => {
     const input: ClassModel = {
       className: "SingleAttributeClass",
-      attributes: [{ name: "id", type: "int" }]
+      attributes: [{ name: "id", type: new TypeSet(["int"]) }]
     };
 
     const expected = dedent`
@@ -34,9 +34,9 @@ describe("generateClass", () => {
     const input: ClassModel = {
       className: "MultiAttributeClass",
       attributes: [
-        { name: "name", type: "str" },
-        { name: "age", type: "int" },
-        { name: "is_active", type: "bool" }
+        { name: "name", type: new TypeSet(["str"]) },
+        { name: "age", type: new TypeSet(["int"]) },
+        { name: "is_active", type: new TypeSet(["bool"]) }
       ]
     };
 
@@ -52,7 +52,7 @@ describe("generateClass", () => {
   test("Should handle attribute names with underscores", () => {
     const input: ClassModel = {
       className: "CustomClass",
-      attributes: [{ name: "custom_field", type: "str" }]
+      attributes: [{ name: "custom_field", type: new TypeSet(["str"]) }]
     };
 
     const expected = dedent`

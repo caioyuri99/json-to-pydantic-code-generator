@@ -1,6 +1,7 @@
 import { TypeSet } from "../../../../src/modules/pydantic-code-generator/classes/TypeSet.class";
 import { mergeClasses } from "../../../../src/modules/pydantic-code-generator/functions/mergeClasses.function";
 import { ClassModel } from "../../../../src/modules/pydantic-code-generator/types/ClassModel.type";
+import { serializeClasses } from "../../../../src/modules/pydantic-code-generator/utils/utils.module";
 
 describe("mergeClasses", () => {
   test("empty input", () => {

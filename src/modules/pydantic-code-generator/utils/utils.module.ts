@@ -1,4 +1,9 @@
-export function uniqueElements<T>(lists: T[][]): T[] {
+import { ListSet } from "../classes/ListSet.class";
+import { TypeSet } from "../classes/TypeSet.class";
+import { setToTypeAnnotation } from "../functions/setToTypeAnnotation.function";
+import { ClassModel } from "../types/ClassModel.type";
+
+function uniqueElements<T>(lists: T[][]): T[] {
   const allElements = new Set(lists.flat());
 
   const frequency = new Map<T, number>();
@@ -15,14 +20,11 @@ export function uniqueElements<T>(lists: T[][]): T[] {
     .map(([element, _]) => element);
 }
 
-export function capitalize(s: string): string {
+function capitalize(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
-export function dedent(
-  strings: TemplateStringsArray,
-  ...values: any[]
-): string {
+function dedent(strings: TemplateStringsArray, ...values: any[]): string {
   const rawString = strings.reduce((result, str, i) => {
     return `${result}${str}${values || ""}`;
   }, "");
@@ -46,7 +48,7 @@ export function dedent(
     .trim();
 }
 
-export function unwrapList(s: string): {
+function unwrapList(s: string): {
   innerType: string;
   listCount: number;
 } {
@@ -60,10 +62,65 @@ export function unwrapList(s: string): {
   return { innerType: s, listCount };
 }
 
-export function wrapList(s: string, listCount: number): string {
+function wrapList(s: string, listCount: number): string {
   for (let i = 0; i < listCount; i++) {
     s = `List[${s}]`;
   }
 
   return s;
 }
+
+function serializeClasses(classes: ClassModel[]): any[] {
+  return classes.map((cls) => ({
+    className: cls.className,
+    attributes: cls.attributes.map((attr) => ({
+      name: attr.name,
+      type: setToTypeAnnotation(attr.type)
+    }))
+  }));
+}
+
+function getNonDuplicateName(newName: string, existentNames: string[]): string {
+  let posfix = 1;
+  let renamedName = newName;
+  while (existentNames.includes(renamedName)) {
+    renamedName = `${newName}${posfix}`;
+    posfix++;
+  }
+
+  return renamedName;
+}
+
+// TODO: adicionar funcionalidade de identificar plural no nome de atributos que contenham arrays de OBJETOS para que a classe dos objetos do array seja nomeada com o singular do nome do atributo (ex: attribute: "users" -> className: "User"; attribute: "feet" -> className: "Foot")
+function getArrayClassName(className: string): string {
+  return `${className}Item`;
+}
+
+function hasType(
+  set: TypeSet<string> | ListSet<string>,
+  value: string
+): boolean {
+  for (const type of set) {
+    if (type instanceof ListSet) {
+      if (hasType(type, value)) {
+        return true;
+      }
+    } else if (type === value) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+export {
+  uniqueElements,
+  capitalize,
+  dedent,
+  unwrapList,
+  wrapList,
+  serializeClasses,
+  getNonDuplicateName,
+  getArrayClassName,
+  hasType
+};
