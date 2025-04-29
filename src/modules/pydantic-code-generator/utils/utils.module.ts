@@ -20,8 +20,16 @@ function nonCommonElements<T>(lists: T[][]): T[] {
     .map(([element, _]) => element);
 }
 
-function capitalize(s: string): string {
-  return s.charAt(0).toUpperCase() + s.slice(1);
+// TODO: adicionar verificação para nomes de classes para impedir que classes sejam criadas com palavras reservadas/nomes de tipos nativos
+function getClassName(base: string): string {
+  return base
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9\s_]/g, "")
+    .split(/[\s_]+/)
+    .filter(Boolean)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join("");
 }
 
 function dedent(strings: TemplateStringsArray, ...values: any[]): string {
@@ -93,7 +101,7 @@ function hasType(
 
 export {
   nonCommonElements,
-  capitalize,
+  getClassName,
   dedent,
   serializeClasses,
   getNonDuplicateName,

@@ -2,7 +2,7 @@ import { ClassModel } from "../types/ClassModel.type";
 import { getType } from "./getType.function";
 import { processArray } from "./processArray.function";
 import { ClassAttribute } from "../types/ClassAttribute.type";
-import { capitalize, getNonDuplicateName } from "../utils/utils.module";
+import { getClassName, getNonDuplicateName } from "../utils/utils.module";
 import { TypeSet } from "../classes/TypeSet.class";
 
 // TODO: adicionar flag preferClassReuse: define se vai reutilizar classes geradas anteriormente para tipar as novas classes geradas
@@ -37,7 +37,7 @@ function generateClasses(
     if (value && typeof value === "object" && !Array.isArray(value)) {
       const generatedClasses = generateClasses(
         value,
-        getNonDuplicateName(capitalize(key), ecn),
+        getNonDuplicateName(getClassName(key), ecn),
         ecn
       );
 

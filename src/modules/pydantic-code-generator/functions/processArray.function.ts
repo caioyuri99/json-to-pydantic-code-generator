@@ -2,8 +2,8 @@ import { ListSet } from "../classes/ListSet.class";
 import { ClassAttribute } from "../types/ClassAttribute.type";
 import { ClassModel } from "../types/ClassModel.type";
 import {
-  capitalize,
   getArrayClassName,
+  getClassName,
   getNonDuplicateName,
   hasType
 } from "../utils/utils.module";
@@ -37,9 +37,11 @@ function processArray(
       return;
     }
 
+    const className = getClassName(name);
+
     const newName = fromObjectArrayJson
-      ? capitalize(name)
-      : getArrayClassName(capitalize(name));
+      ? className
+      : getArrayClassName(className);
 
     generatedClassModels.push(
       ...generateClasses(
