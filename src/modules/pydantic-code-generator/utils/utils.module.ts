@@ -58,7 +58,9 @@ function dedent(strings: TemplateStringsArray, ...values: any[]): string {
     .trim();
 }
 
-function serializeClasses(classes: ClassModel[]): any[] {
+function serializeClasses(
+  classes: ClassModel[]
+): { className: string; attributes: { name: string; type: string }[] }[] {
   return classes.map((cls) => ({
     className: cls.className,
     attributes: cls.attributes.map((attr) => ({
