@@ -3,7 +3,7 @@ import { TypeSet } from "../classes/TypeSet.class";
 import { setToTypeAnnotation } from "../functions/setToTypeAnnotation.function";
 import { ClassModel } from "../types/ClassModel.type";
 
-function uniqueElements<T>(lists: T[][]): T[] {
+function nonCommonElements<T>(lists: T[][]): T[] {
   const allElements = new Set(lists.flat());
 
   const frequency = new Map<T, number>();
@@ -92,7 +92,7 @@ function hasType(
 }
 
 export {
-  uniqueElements,
+  nonCommonElements,
   capitalize,
   dedent,
   serializeClasses,

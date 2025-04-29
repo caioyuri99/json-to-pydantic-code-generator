@@ -1,10 +1,10 @@
 import { ListSet } from "../classes/ListSet.class";
 import { TypeSet } from "../classes/TypeSet.class";
 import { ClassModel } from "../types/ClassModel.type";
-import { uniqueElements } from "../utils/utils.module";
+import { nonCommonElements } from "../utils/utils.module";
 
 function setOptional(classes: ClassModel[], classModel: ClassModel) {
-  const optionalAttrs = uniqueElements(
+  const optionalAttrs = nonCommonElements(
     classes
       .filter((c) => c.className === classModel.className)
       .map((e) => e.attributes.map((a) => a.name))
