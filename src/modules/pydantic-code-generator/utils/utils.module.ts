@@ -34,7 +34,7 @@ function getClassName(base: string): string {
 
 function dedent(strings: TemplateStringsArray, ...values: any[]): string {
   const rawString = strings.reduce((result, str, i) => {
-    return `${result}${str}${values || ""}`;
+    return `${result}${str}${values[i] ?? ""}`;
   }, "");
 
   const lines = rawString.split("\n");
@@ -45,7 +45,9 @@ function dedent(strings: TemplateStringsArray, ...values: any[]): string {
   }
 
   const indentSize = Math.min(
-    ...nonEmptyLines.map((line) => line.match(/^\s*/)?.[0].length || 0)
+    // A regex /^\s*/ sempre retorna um resultado válido, mesmo em uma string vazia, porque ela casa com "zero ou mais espaços no início da linha"
+    // Então, line.match(/^\s*/) nunca será null
+    ...nonEmptyLines.map((line) => line.match(/^\s*/)![0].length)
   );
 
   return lines
