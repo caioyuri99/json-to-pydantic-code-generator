@@ -191,11 +191,7 @@ describe("serializeClasses", () => {
         attributes: [
           {
             name: "settings",
-            type: new TypeSet([
-              new ListSet(["str"]),
-              new ListSet(["int"]),
-              "Any"
-            ])
+            type: new TypeSet([new ListSet(["str", "int"]), "Any"])
           }
         ]
       }

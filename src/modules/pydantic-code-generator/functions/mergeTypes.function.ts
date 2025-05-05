@@ -1,5 +1,6 @@
 import { ListSet } from "../classes/ListSet.class";
 import { TypeSet } from "../classes/TypeSet.class";
+import { addType } from "../utils/utils.module";
 
 function mergeTypes(
   oldTypes: TypeSet<string> | ListSet<string>,
@@ -7,21 +8,21 @@ function mergeTypes(
 ): TypeSet<string> | ListSet<string> {
   if (oldTypes instanceof ListSet) {
     if (typeToAdd instanceof ListSet) {
-      return new ListSet<string>([...oldTypes, ...typeToAdd]);
+      return addType(oldTypes, ...typeToAdd);
     }
 
-    return typeToAdd.add(oldTypes);
+    return addType(typeToAdd, oldTypes);
   }
 
   if (oldTypes instanceof TypeSet) {
     if (typeToAdd instanceof TypeSet) {
-      typeToAdd.forEach((e) => oldTypes.add(e));
+      typeToAdd.forEach((e) => addType(oldTypes, e));
 
       return oldTypes;
     }
   }
 
-  return oldTypes.add(typeToAdd);
+  return addType(oldTypes, typeToAdd);
 }
 
 export { mergeTypes };

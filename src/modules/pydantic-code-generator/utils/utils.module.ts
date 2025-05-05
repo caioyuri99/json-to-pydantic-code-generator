@@ -103,6 +103,30 @@ function hasType(
   return false;
 }
 
+function addType(
+  set: TypeSet<string> | ListSet<string>,
+  ...values: (string | ListSet<string>)[]
+): TypeSet<string> | ListSet<string> {
+  for (const value of values) {
+    if (value instanceof TypeSet) {
+      throw new Error("Add TypeSet is not allowed");
+    }
+
+    if (value instanceof ListSet) {
+      const alreadyHasListSet = [...set].find((v) => v instanceof ListSet);
+      if (alreadyHasListSet) {
+        value.forEach((e) => addType(alreadyHasListSet, e));
+
+        continue;
+      }
+    }
+
+    set.add(value);
+  }
+
+  return set;
+}
+
 export {
   nonCommonElements,
   getClassName,
@@ -110,5 +134,6 @@ export {
   serializeClasses,
   getNonDuplicateName,
   getArrayClassName,
-  hasType
+  hasType,
+  addType
 };

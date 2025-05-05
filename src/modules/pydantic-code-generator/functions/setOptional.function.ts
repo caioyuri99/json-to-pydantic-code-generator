@@ -1,7 +1,7 @@
 import { ListSet } from "../classes/ListSet.class";
 import { TypeSet } from "../classes/TypeSet.class";
 import { ClassModel } from "../types/ClassModel.type";
-import { nonCommonElements } from "../utils/utils.module";
+import { addType, nonCommonElements } from "../utils/utils.module";
 
 function setOptional(classes: ClassModel[], classModel: ClassModel) {
   const optionalAttrs = nonCommonElements(
@@ -15,7 +15,7 @@ function setOptional(classes: ClassModel[], classModel: ClassModel) {
       if (attr.type instanceof ListSet) {
         attr.type = new TypeSet(["Any", attr.type]);
       } else {
-        attr.type.add("Any");
+        addType(attr.type, "Any");
       }
     }
   }

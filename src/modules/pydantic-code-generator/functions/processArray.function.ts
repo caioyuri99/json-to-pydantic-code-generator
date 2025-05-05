@@ -2,6 +2,7 @@ import { ListSet } from "../classes/ListSet.class";
 import { ClassAttribute } from "../types/ClassAttribute.type";
 import { ClassModel } from "../types/ClassModel.type";
 import {
+  addType,
   getArrayClassName,
   getClassName,
   getNonDuplicateName,
@@ -22,7 +23,7 @@ function processArray(
 
   value.forEach((v) => {
     if (typeof v !== "object") {
-      types.add(getType(v));
+      addType(types, getType(v));
 
       return;
     }
@@ -32,7 +33,7 @@ function processArray(
 
       generatedClassModels.push(...res.generatedClassModels);
 
-      types.add(res.newAttribute.type);
+      addType(types, res.newAttribute.type);
 
       return;
     }
@@ -52,7 +53,7 @@ function processArray(
     );
 
     // considerando que v é um objeto, generateClasses vai gerar pelo menos 1 ClassModel, logo generatedClassModels.at(-1) nunca será undefined
-    types.add(generatedClassModels.at(-1)!.className);
+    addType(types, generatedClassModels.at(-1)!.className);
   });
 
   const orderedClassModels = mergeClasses(generatedClassModels).sort((a, b) => {
