@@ -52,4 +52,28 @@ describe("getClassName", () => {
   test("should handle mixed UPPERCASE, accents and PascalCase", () => {
     expect(getClassName("user-INFO_01")).toBe("UserINFO01");
   });
+
+  test("adds characters from 'model' to reserved Python keywords until no conflict", () => {
+    expect(getClassName("class")).toBe("ClassM"); // "class" → "Class" → reservado → "Classm" → ok
+    expect(getClassName("def")).toBe("DefM"); // "Def" → reservado → "Defm" → ok
+    expect(getClassName("return")).toBe("ReturnM"); // "Return" → reservado → "Returnm" → ok
+    expect(getClassName("from")).toBe("FromM"); // "From" → reservado → "Fromm" → ok
+  });
+
+  test("adds more than one character from 'model' if needed", () => {
+    // Simula que "Class", "Classm", "Classmo", "Classmod" são todas reservadas
+    const fakeReserved = new Set([
+      "class",
+      "classm",
+      "classmo",
+      "classmod",
+      "classmode"
+    ]);
+
+    expect(getClassName("class", fakeReserved)).toBe("ClassModel");
+
+    fakeReserved.add("classmodel");
+
+    expect(getClassName("class", fakeReserved)).toBe("ClassModel1");
+  });
 });

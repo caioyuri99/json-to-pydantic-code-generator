@@ -1,5 +1,6 @@
 import { ListSet } from "../classes/ListSet.class";
 import { TypeSet } from "../classes/TypeSet.class";
+import { PYTHON_RESERVED_KEYWORDS } from "../consts/PYTHON_RESERVED_KEYWORDS.const";
 import { setToTypeAnnotation } from "../functions/setToTypeAnnotation.function";
 import { ClassModel } from "../types/ClassModel.type";
 
@@ -20,9 +21,11 @@ function nonCommonElements<T>(lists: T[][]): T[] {
     .map(([element, _]) => element);
 }
 
-// TODO: adicionar verificação para nomes de classes para impedir que classes sejam criadas com palavras reservadas/nomes de tipos nativos
-function getClassName(base: string): string {
-  return base
+function getClassName(
+  base: string,
+  reserved = PYTHON_RESERVED_KEYWORDS
+): string {
+  const baseName = base
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-zA-Z0-9\s_]/g, "")
@@ -30,6 +33,22 @@ function getClassName(base: string): string {
     .filter(Boolean)
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
     .join("");
+
+  let candidate = baseName;
+  const suffix = "Model";
+  let i = 1;
+
+  while (reserved.has(candidate.toLowerCase())) {
+    if (i > 5) {
+      return `${baseName}Model1`;
+    }
+
+    candidate = `${baseName}${suffix.slice(0, i)}`;
+
+    i++;
+  }
+
+  return candidate;
 }
 
 function dedent(strings: TemplateStringsArray, ...values: any[]): string {
