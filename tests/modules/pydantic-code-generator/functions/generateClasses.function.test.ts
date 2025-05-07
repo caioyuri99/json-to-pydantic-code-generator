@@ -19,16 +19,18 @@ describe("generateClasses", () => {
 
     const result = generateClasses(json, "Person");
 
-    expect(result).toEqual([
-      {
-        className: "Person",
-        attributes: [
-          { name: "id", type: new TypeSet(["int"]) },
-          { name: "name", type: new TypeSet(["str"]) },
-          { name: "age", type: new TypeSet(["int"]) }
-        ]
-      }
-    ]);
+    expect(serializeClasses(result)).toEqual(
+      serializeClasses([
+        {
+          className: "Person",
+          attributes: [
+            { name: "id", type: new TypeSet(["int"]), alias: "" },
+            { name: "name", type: new TypeSet(["str"]), alias: "" },
+            { name: "age", type: new TypeSet(["int"]), alias: "" }
+          ]
+        }
+      ])
+    );
   });
 
   test("should generate nested classes for an object with nested objects", () => {
@@ -38,26 +40,28 @@ describe("generateClasses", () => {
 
     const result = generateClasses(json, "Root");
 
-    expect(result).toEqual([
-      {
-        className: "Profile",
-        attributes: [
-          { name: "bio", type: new TypeSet(["str"]) },
-          { name: "website", type: new TypeSet(["str"]) }
-        ]
-      },
-      {
-        className: "User",
-        attributes: [
-          { name: "id", type: new TypeSet(["int"]) },
-          { name: "profile", type: new TypeSet(["Profile"]) }
-        ]
-      },
-      {
-        className: "Root",
-        attributes: [{ name: "user", type: new TypeSet(["User"]) }]
-      }
-    ]);
+    expect(serializeClasses(result)).toEqual(
+      serializeClasses([
+        {
+          className: "Profile",
+          attributes: [
+            { name: "bio", type: new TypeSet(["str"]), alias: "" },
+            { name: "website", type: new TypeSet(["str"]), alias: "" }
+          ]
+        },
+        {
+          className: "User",
+          attributes: [
+            { name: "id", type: new TypeSet(["int"]), alias: "" },
+            { name: "profile", type: new TypeSet(["Profile"]), alias: "" }
+          ]
+        },
+        {
+          className: "Root",
+          attributes: [{ name: "user", type: new TypeSet(["User"]), alias: "" }]
+        }
+      ])
+    );
   });
 
   test("should generate a list of objects as a separate class", () => {
@@ -77,14 +81,18 @@ describe("generateClasses", () => {
         {
           className: "UsersItem",
           attributes: [
-            { name: "id", type: new TypeSet(["int"]) },
-            { name: "name", type: new TypeSet(["str"]) }
+            { name: "id", type: new TypeSet(["int"]), alias: "" },
+            { name: "name", type: new TypeSet(["str"]), alias: "" }
           ]
         },
         {
           className: "Root",
           attributes: [
-            { name: "users", type: new ListSet<string>(["UsersItem"]) }
+            {
+              name: "users",
+              type: new ListSet<string>(["UsersItem"]),
+              alias: ""
+            }
           ]
         }
       ])
