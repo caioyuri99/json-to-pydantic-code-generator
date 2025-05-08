@@ -79,7 +79,7 @@ describe("generateClasses", () => {
     expect(serializeClasses(result)).toEqual(
       serializeClasses([
         {
-          className: "UsersItem",
+          className: "User",
           attributes: [
             { name: "id", type: new TypeSet(["int"]), alias: "" },
             { name: "name", type: new TypeSet(["str"]), alias: "" }
@@ -90,7 +90,7 @@ describe("generateClasses", () => {
           attributes: [
             {
               name: "users",
-              type: new ListSet<string>(["UsersItem"]),
+              type: new ListSet<string>(["User"]),
               alias: ""
             }
           ]
@@ -108,7 +108,7 @@ describe("generateClasses", () => {
 
     expect(result).toEqual([
       {
-        className: "ItemsItem",
+        className: "Item",
         attributes: [
           { name: "id", type: new TypeSet(["int"]) },
           { name: "value", type: new TypeSet<string>(["str", "Any"]) }
@@ -116,9 +116,7 @@ describe("generateClasses", () => {
       },
       {
         className: "Root",
-        attributes: [
-          { name: "items", type: new ListSet<string>(["ItemsItem"]) }
-        ]
+        attributes: [{ name: "items", type: new ListSet<string>(["Item"]) }]
       }
     ]);
   });
@@ -155,7 +153,7 @@ describe("generateClasses", () => {
 
     expect(result).toEqual([
       {
-        className: "DataItem",
+        className: "Datum",
         attributes: [
           { name: "id", type: new TypeSet(["int"]) },
           { name: "name", type: new TypeSet(["str"]) }
@@ -166,7 +164,7 @@ describe("generateClasses", () => {
         attributes: [
           {
             name: "data",
-            type: new ListSet<string>([new ListSet<string>(["DataItem"])])
+            type: new ListSet<string>([new ListSet<string>(["Datum"])])
           }
         ]
       }
@@ -247,7 +245,7 @@ describe("generateClasses", () => {
 
     expect(result).toEqual([
       {
-        className: "UsersItem",
+        className: "User",
         attributes: [
           { name: "id", type: new TypeSet<string>(["int", "str"]) },
           { name: "active", type: new TypeSet<string>(["Any", "bool"]) },
@@ -256,9 +254,7 @@ describe("generateClasses", () => {
       },
       {
         className: "Model",
-        attributes: [
-          { name: "users", type: new ListSet<string>(["UsersItem"]) }
-        ]
+        attributes: [{ name: "users", type: new ListSet<string>(["User"]) }]
       }
     ]);
   });
@@ -307,7 +303,7 @@ describe("generateClasses", () => {
     expect(serializeClasses(result)).toEqual(
       serializeClasses([
         {
-          className: "ItemsItem",
+          className: "Item",
           attributes: [
             { name: "name", type: new TypeSet<string>(["Any", "str"]) },
             { name: "price", type: new TypeSet<string>(["Any", "int"]) },
@@ -320,9 +316,7 @@ describe("generateClasses", () => {
         },
         {
           className: "Model",
-          attributes: [
-            { name: "items", type: new ListSet<string>(["ItemsItem"]) }
-          ]
+          attributes: [{ name: "items", type: new ListSet<string>(["Item"]) }]
         }
       ])
     );
@@ -495,23 +489,21 @@ describe("generateClasses", () => {
     expect(serializeClasses(result)).toEqual(
       serializeClasses([
         {
-          className: "ProductsItem",
+          className: "Product",
           attributes: [{ name: "name", type: new TypeSet(["str"]) }]
         },
         {
-          className: "ProductsItem1",
+          className: "Product1",
           attributes: [{ name: "price", type: new TypeSet(["int"]) }]
         },
         {
           className: "Backup",
-          attributes: [
-            { name: "products", type: new ListSet(["ProductsItem1"]) }
-          ]
+          attributes: [{ name: "products", type: new ListSet(["Product1"]) }]
         },
         {
           className: "Model",
           attributes: [
-            { name: "products", type: new ListSet(["ProductsItem"]) },
+            { name: "products", type: new ListSet(["Product"]) },
             { name: "backup", type: new TypeSet(["Backup"]) }
           ]
         }
@@ -593,7 +585,7 @@ describe("generateClasses", () => {
     expect(serializeClasses(result)).toEqual(
       serializeClasses([
         {
-          className: "AttributesItem",
+          className: "Attribute",
           attributes: [
             { name: "id", type: new TypeSet(["int"]) },
             { name: "name", type: new TypeSet(["str"]) },
@@ -606,11 +598,11 @@ describe("generateClasses", () => {
           attributes: [
             { name: "id", type: new TypeSet(["int"]) },
             { name: "name", type: new TypeSet(["str"]) },
-            { name: "attributes", type: new ListSet(["AttributesItem"]) }
+            { name: "attributes", type: new ListSet(["Attribute"]) }
           ]
         },
         {
-          className: "ChangesItem",
+          className: "Change",
           attributes: [
             { name: "id", type: new TypeSet(["int"]) },
             { name: "field", type: new TypeSet(["str"]) },
@@ -623,7 +615,7 @@ describe("generateClasses", () => {
           attributes: [
             { name: "id", type: new TypeSet(["int"]) },
             { name: "date", type: new TypeSet(["str"]) },
-            { name: "changes", type: new ListSet(["ChangesItem"]) }
+            { name: "changes", type: new ListSet(["Change"]) }
           ]
         },
         {
@@ -644,7 +636,7 @@ describe("generateClasses", () => {
           ]
         },
         {
-          className: "ItemsItem",
+          className: "Item",
           attributes: [
             { name: "id", type: new TypeSet(["int"]) },
             { name: "name", type: new TypeSet(["str"]) },
@@ -657,7 +649,7 @@ describe("generateClasses", () => {
             { name: "id", type: new TypeSet(["int"]) },
             { name: "name", type: new TypeSet(["str"]) },
             { name: "details", type: new TypeSet(["Details"]) },
-            { name: "items", type: new ListSet(["ItemsItem"]) }
+            { name: "items", type: new ListSet(["Item"]) }
           ]
         }
       ])
@@ -793,19 +785,19 @@ describe("generateClasses", () => {
           ]
         },
         {
-          className: "DataItem",
+          className: "Datum",
           attributes: [
             { name: "type", type: new TypeSet(["str"]) },
             { name: "severity", type: new TypeSet(["str"]) }
           ]
         },
         {
-          className: "LogsItem",
+          className: "Log",
           attributes: [
             { name: "info", type: new TypeSet(["Info3"]) },
             {
               name: "data",
-              type: new TypeSet(["Data", new ListSet(["DataItem"])])
+              type: new TypeSet(["Data", new ListSet(["Datum"])])
             }
           ]
         },
@@ -814,7 +806,7 @@ describe("generateClasses", () => {
           attributes: [
             { name: "profile", type: new TypeSet(["Profile"]) },
             { name: "settings", type: new TypeSet(["Settings"]) },
-            { name: "logs", type: new ListSet(["LogsItem"]) }
+            { name: "logs", type: new ListSet(["Log"]) }
           ]
         }
       ])

@@ -286,7 +286,7 @@ describe("generatePydanticCode", () => {
       from pydantic import BaseModel
 
 
-      class ProcessosItem(BaseModel):
+      class Processo(BaseModel):
         indicadorLeadingCase: str
         numRegistro: Optional[Union[int, str]]
         siglaClasse: str
@@ -324,7 +324,7 @@ describe("generatePydanticCode", () => {
         nomeMinistroAtual: str
         descRrTema: str
         descAnotacoesNurer: str
-        processos: List[ProcessosItem]
+        processos: List[Processo]
         descTeseFirmada: str
         situacao: Situacao
         dtTermoInicial: Any

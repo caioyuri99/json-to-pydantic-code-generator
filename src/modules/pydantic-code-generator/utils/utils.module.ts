@@ -3,6 +3,7 @@ import { TypeSet } from "../classes/TypeSet.class";
 import { PYTHON_RESERVED_KEYWORDS } from "../consts/PYTHON_RESERVED_KEYWORDS.const";
 import { setToTypeAnnotation } from "../functions/setToTypeAnnotation.function";
 import { ClassModel } from "../types/ClassModel.type";
+import pluralize from "pluralize";
 
 function nonCommonElements<T>(lists: T[][]): T[] {
   const allElements = new Set(lists.flat());
@@ -100,9 +101,14 @@ function getNonDuplicateName(newName: string, existentNames: string[]): string {
   return renamedName;
 }
 
-// TODO: adicionar funcionalidade de identificar plural no nome de atributos que contenham arrays de OBJETOS para que a classe dos objetos do array seja nomeada com o singular do nome do atributo (ex: attribute: "users" -> className: "User"; attribute: "feet" -> className: "Foot")
-function getArrayClassName(className: string): string {
-  return `${className}Item`;
+function getArrayClassName(attributeName: string): string {
+  const singularName = pluralize.singular(attributeName);
+
+  if (attributeName === singularName) {
+    return `${attributeName}Item`;
+  }
+
+  return singularName;
 }
 
 function hasType(

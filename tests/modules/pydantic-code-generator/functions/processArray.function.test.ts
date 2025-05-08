@@ -133,26 +133,26 @@ describe("processArray", () => {
       }
     ];
 
-    const result = processArray(input, "user");
+    const result = processArray(input, "users");
 
     expect(result).toEqual({
       generatedClassModels: [
         {
-          className: "FriendsItem",
+          className: "Friend",
           attributes: [
             { name: "name", type: new TypeSet(["str"]) },
             { name: "age", type: new TypeSet(["int"]) }
           ]
         },
         {
-          className: "UserItem",
+          className: "User",
           attributes: [
             { name: "id", type: new TypeSet(["int"]) },
-            { name: "friends", type: new ListSet<string>(["FriendsItem"]) }
+            { name: "friends", type: new ListSet<string>(["Friend"]) }
           ]
         }
       ],
-      newAttribute: { name: "user", type: new ListSet<string>(["UserItem"]) }
+      newAttribute: { name: "users", type: new ListSet<string>(["User"]) }
     });
   });
 
@@ -341,26 +341,26 @@ describe("processArray", () => {
   test("should handle deeply nested lists of objects", () => {
     const input = [{ id: 1, data: [[{ value: 10 }], [{ value: 20 }]] }];
 
-    const result = processArray(input, "user");
+    const result = processArray(input, "users");
 
     expect(result).toEqual({
       generatedClassModels: [
         {
-          className: "DataItem",
+          className: "Datum",
           attributes: [{ name: "value", type: new TypeSet(["int"]) }]
         },
         {
-          className: "UserItem",
+          className: "User",
           attributes: [
             { name: "id", type: new TypeSet(["int"]) },
             {
               name: "data",
-              type: new ListSet<string>([new ListSet<string>(["DataItem"])])
+              type: new ListSet<string>([new ListSet<string>(["Datum"])])
             }
           ]
         }
       ],
-      newAttribute: { name: "user", type: new ListSet<string>(["UserItem"]) }
+      newAttribute: { name: "users", type: new ListSet<string>(["User"]) }
     });
   });
 
@@ -410,7 +410,7 @@ describe("processArray", () => {
     expect(result).toEqual({
       generatedClassModels: [
         {
-          className: "UsersItem",
+          className: "User",
           attributes: [
             { name: "id", type: new TypeSet<string>(["int", "str"]) },
             { name: "active", type: new TypeSet<string>(["Any"]) },
@@ -418,11 +418,11 @@ describe("processArray", () => {
           ]
         }
       ],
-      newAttribute: { name: "users", type: new ListSet<string>(["UsersItem"]) }
+      newAttribute: { name: "users", type: new ListSet<string>(["User"]) }
     });
   });
 
-  test("should handle fromObjectArrayJson correctly (no List suffix)", () => {
+  test("should handle fromObjectArrayJson correctly (no List class name changes)", () => {
     const arr = [
       { timestamp: "2021-01-01", status: "ok" },
       { timestamp: "2021-01-02", status: "error" }
@@ -451,14 +451,14 @@ describe("processArray", () => {
 
   test("should generate non-duplicate names when needed", () => {
     const arr = [{ id: 1 }, { id: 2 }];
-    const existentClassNames = ["IdsItem"];
+    const existentClassNames = ["Id"];
     const { generatedClassModels, newAttribute } = processArray(
       arr,
       "ids",
       existentClassNames
     );
 
-    expect(generatedClassModels[0].className).toBe("IdsItem1");
-    expect([...newAttribute.type]).toEqual(["IdsItem1"]);
+    expect(generatedClassModels[0].className).toBe("Id1");
+    expect([...newAttribute.type]).toEqual(["Id1"]);
   });
 });
