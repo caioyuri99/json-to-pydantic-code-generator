@@ -1,21 +1,14 @@
 import { generateClass } from "./functions/generateClass.function";
 import { generateClasses } from "./functions/generateClasses.function";
-import { getTypingImports } from "./functions/getTypingImports.function";
+import { getImports } from "./functions/getImports.function";
 
 function generatePydanticCode(json: any): string {
   const generatedClasses = generateClasses(json);
   const classes = generatedClasses.map((e) => generateClass(e)).join("\n\n\n");
-  const importLines = [];
 
-  const typingImports = getTypingImports(classes);
+  const imports = getImports(classes);
 
-  if (typingImports) {
-    importLines.push(typingImports);
-  }
-
-  importLines.push("from pydantic import BaseModel");
-
-  return `${importLines.join("\n\n")}\n\n\n${classes}`;
+  return `${imports}\n\n\n${classes}`;
 }
 
 export { generatePydanticCode };

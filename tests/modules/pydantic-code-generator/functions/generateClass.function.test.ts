@@ -78,4 +78,50 @@ describe("generateClass", () => {
     `;
     expect(generateClass(input)).toBe(expected);
   });
+
+  test("should rename Python reserved keyword attribute with underscore and use Field alias", () => {
+    const model: ClassModel = {
+      className: "Example",
+      attributes: [
+        { name: "for", type: new Set(["str"]) },
+        { name: "class", type: new Set(["int"]) }
+      ]
+    };
+
+    const code = generateClass(model);
+
+    expect(code).toContain("for_: str = Field(..., alias='for')");
+    expect(code).toContain("class_: int = Field(..., alias='class')");
+  });
+
+  test("should not rename non-keyword attribute names", () => {
+    const model: ClassModel = {
+      className: "User",
+      attributes: [
+        { name: "name", type: new Set(["str"]) },
+        { name: "age", type: new Set(["int"]) }
+      ]
+    };
+
+    const code = generateClass(model);
+
+    expect(code).toContain("name: str");
+    expect(code).toContain("age: int");
+    expect(code).not.toContain("Field(");
+  });
+
+  test("should work with mixed keywords and normal attributes", () => {
+    const model: ClassModel = {
+      className: "Data",
+      attributes: [
+        { name: "if", type: new Set(["bool"]) },
+        { name: "value", type: new Set(["float"]) }
+      ]
+    };
+
+    const code = generateClass(model);
+
+    expect(code).toContain("if_: bool = Field(..., alias='if')");
+    expect(code).toContain("value: float");
+  });
 });
