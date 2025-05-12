@@ -11,6 +11,25 @@ function generateClass(obj: ClassModel, indentation: number = 2): string {
     return e;
   });
 
+  obj.attributes.map((e) => {
+    if (e.name.match(/[^a-zA-Z0-9_]+/)) {
+      e.alias = e.name;
+      e.name = e.name.replaceAll(/[^a-zA-Z0-9_]/g, "_");
+    }
+
+    return e;
+  });
+
+  obj.attributes.map((e) => {
+    if (e.name.match(/^[0-9]/)) {
+      if (!e.alias) {
+        e.alias = e.name;
+      }
+
+      e.name = `field_${e.name}`;
+    }
+  });
+
   const attributes = obj.attributes
     .map(
       (attr) =>
