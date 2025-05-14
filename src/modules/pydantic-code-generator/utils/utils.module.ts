@@ -22,6 +22,7 @@ function nonCommonElements<T>(lists: T[][]): T[] {
     .map(([element, _]) => element);
 }
 
+// TODO: Fazer alteração para detectar se o nome começa com um número, se sim, prefixar com "Class_"
 function getClassName(
   base: string,
   reserved = PYTHON_RESERVED_KEYWORDS
@@ -39,7 +40,7 @@ function getClassName(
   const suffix = "Model";
   let i = 1;
 
-  while (reserved.has(candidate.toLowerCase())) {
+  while (reserved.has(candidate)) {
     if (i > 5) {
       return `${baseName}Model1`;
     }
@@ -47,6 +48,10 @@ function getClassName(
     candidate = `${baseName}${suffix.slice(0, i)}`;
 
     i++;
+  }
+
+  if (candidate.match(/^[0-9]/)) {
+    candidate = `Class_${candidate}`;
   }
 
   return candidate;

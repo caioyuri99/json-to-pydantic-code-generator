@@ -54,26 +54,40 @@ describe("getClassName", () => {
   });
 
   test("adds characters from 'model' to reserved Python keywords until no conflict", () => {
-    expect(getClassName("class")).toBe("ClassM"); // "class" → "Class" → reservado → "Classm" → ok
-    expect(getClassName("def")).toBe("DefM"); // "Def" → reservado → "Defm" → ok
-    expect(getClassName("return")).toBe("ReturnM"); // "Return" → reservado → "Returnm" → ok
-    expect(getClassName("from")).toBe("FromM"); // "From" → reservado → "Fromm" → ok
+    expect(getClassName("true")).toBe("TrueM");
+    expect(getClassName("false")).toBe("FalseM");
+    expect(getClassName("none")).toBe("NoneM");
+    expect(getClassName("from")).toBe("From");
   });
 
   test("adds more than one character from 'model' if needed", () => {
-    // Simula que "Class", "Classm", "Classmo", "Classmod" são todas reservadas
     const fakeReserved = new Set([
-      "class",
-      "classm",
-      "classmo",
-      "classmod",
-      "classmode"
+      "True",
+      "TrueM",
+      "TrueMo",
+      "TrueMod",
+      "TrueMode"
     ]);
 
-    expect(getClassName("class", fakeReserved)).toBe("ClassModel");
+    expect(getClassName("True", fakeReserved)).toBe("TrueModel");
 
-    fakeReserved.add("classmodel");
+    fakeReserved.add("TrueModel");
 
-    expect(getClassName("class", fakeReserved)).toBe("ClassModel1");
+    expect(getClassName("true", fakeReserved)).toBe("TrueModel1");
+  });
+
+  test("prefixes class name with 'Class_' if it starts with a number", () => {
+    expect(getClassName("123model")).toBe("Class_123model");
+    expect(getClassName("9user")).toBe("Class_9user");
+    expect(getClassName("42_data")).toBe("Class_42Data");
+  });
+
+  test("does not prefix 'Class_' if the name does not start with a number", () => {
+    expect(getClassName("user1")).toBe("User1");
+    expect(getClassName("data2025")).toBe("Data2025");
+  });
+
+  test("prefixes 'Class_' even after PascalCase conversion if it still starts with a number", () => {
+    expect(getClassName("123_user")).toBe("Class_123User");
   });
 });

@@ -4,7 +4,7 @@ import { setToTypeAnnotation } from "./setToTypeAnnotation.function";
 
 function generateClass(obj: ClassModel, indentation: number = 2): string {
   obj.attributes.map((e) => {
-    if (PYTHON_RESERVED_KEYWORDS.has(e.name.toLowerCase())) {
+    if (PYTHON_RESERVED_KEYWORDS.has(e.name)) {
       e.alias = e.name;
       e.name = `${e.name}_`;
     }

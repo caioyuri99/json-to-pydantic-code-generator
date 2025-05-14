@@ -1,7 +1,7 @@
 const PYTHON_RESERVED_KEYWORDS = new Set([
-  "false",
-  "none",
-  "true",
+  "False",
+  "None",
+  "True",
   "and",
   "as",
   "assert",
