@@ -22,7 +22,6 @@ function nonCommonElements<T>(lists: T[][]): T[] {
     .map(([element, _]) => element);
 }
 
-// TODO: Fazer alteração para detectar se o nome começa com um número, se sim, prefixar com "Class_"
 function getClassName(
   base: string,
   reserved = PYTHON_RESERVED_KEYWORDS
@@ -157,6 +156,51 @@ function addType(
   return set;
 }
 
+function equalTypes(
+  setA: TypeSet<string> | ListSet<string>,
+  setB: TypeSet<string> | ListSet<string>
+): boolean {
+  if (
+    (setA instanceof TypeSet && setB instanceof ListSet) ||
+    (setA instanceof ListSet && setB instanceof TypeSet)
+  ) {
+    return false;
+  }
+
+  if (setA.size !== setB.size) {
+    return false;
+  }
+
+  for (const item of setA) {
+    if (typeof item === "string") {
+      if (![...setB].some((i) => i === item)) return false;
+    } else {
+      if (![...setB].some((i) => i instanceof ListSet && equalTypes(i, item)))
+        return false;
+    }
+  }
+
+  return true;
+}
+
+function replaceType(
+  set: TypeSet<string> | ListSet<string>,
+  oldType: string,
+  newType: string
+): void {
+  if (set.delete(oldType)) {
+    set.add(newType);
+  }
+
+  for (const item of set) {
+    if (item instanceof ListSet) {
+      replaceType(item, oldType, newType);
+
+      break;
+    }
+  }
+}
+
 export {
   nonCommonElements,
   getClassName,
@@ -165,5 +209,7 @@ export {
   getNonDuplicateName,
   getArrayClassName,
   hasType,
-  addType
+  addType,
+  equalTypes,
+  replaceType
 };
