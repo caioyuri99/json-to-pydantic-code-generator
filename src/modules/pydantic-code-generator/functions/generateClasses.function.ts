@@ -2,11 +2,7 @@ import { ClassModel } from "../types/ClassModel.type";
 import { getType } from "./getType.function";
 import { processArray } from "./processArray.function";
 import { ClassAttribute } from "../types/ClassAttribute.type";
-import {
-  getClassName,
-  getNonDuplicateName,
-  replaceType
-} from "../utils/utils.module";
+import { getClassName, getNonDuplicateName } from "../utils/utils.module";
 import { TypeSet } from "../classes/TypeSet.class";
 import { reuseClasses } from "./reuseClasses.function";
 

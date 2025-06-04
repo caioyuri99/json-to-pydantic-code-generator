@@ -1,5 +1,4 @@
 import { getImports } from "../../../../src/modules/pydantic-code-generator/functions/getImports.function";
-import { dedent } from "../../../../src/modules/pydantic-code-generator/utils/utils.module";
 
 describe("getTypingImports", () => {
   test("returns only BaseModel when no other symbols are present", () => {
