@@ -812,4 +812,83 @@ describe("generateClasses", () => {
       ])
     );
   });
+
+  test("generateClasses without preferClassReuse creates duplicate classes for same structure", () => {
+    const json = {
+      user1: { id: 1, name: "Alice" },
+      user2: { id: 2, name: "Bob" }
+    };
+
+    const classes = generateClasses(json, "Root", [], false);
+
+    const user1Class = classes.find((c) => c.className === "User1");
+    const user2Class = classes.find((c) => c.className === "User2");
+
+    expect(user1Class).toBeDefined();
+    expect(user2Class).toBeDefined();
+    expect(user1Class).not.toBe(user2Class);
+  });
+
+  test("generateClasses with preferClassReuse reuses class for identical structures", () => {
+    const json = {
+      user1: { id: 1, name: "Alice" },
+      user2: { id: 2, name: "Bob" }
+    };
+
+    const classes = generateClasses(json, "Root", [], true);
+
+    expect(classes.length).toBe(2);
+  });
+
+  test("generateClasses with preferClassReuse does not reuse different structures", () => {
+    const json = {
+      user1: { id: 1, name: "Alice" },
+      user2: { id: 2, age: 30 }
+    };
+
+    const classes = generateClasses(json, "Root", [], true);
+
+    const user1Class = classes.find((c) => c.className.includes("User1"));
+    const user2Class = classes.find((c) => c.className.includes("User2"));
+
+    expect(user1Class).toBeDefined();
+    expect(user2Class).toBeDefined();
+    expect(user1Class).not.toEqual(user2Class);
+  });
+
+  test("should reuse existing class when array of objects has same structure", () => {
+    const json = {
+      single: { a: "test", b: 123 },
+      list: [
+        { a: "example", b: 456 },
+        { a: "another", b: 789 }
+      ]
+    };
+
+    const result = generateClasses(json, "Model", [], true);
+
+    console.dir(serializeClasses(result), { depth: null });
+
+    expect(serializeClasses(result)).toEqual(
+      serializeClasses([
+        {
+          className: "Single",
+          attributes: [
+            { name: "a", type: new TypeSet(["str"]) },
+            { name: "b", type: new TypeSet(["int"]) }
+          ]
+        },
+        {
+          className: "Model",
+          attributes: [
+            { name: "single", type: new TypeSet(["Single"]) },
+            {
+              name: "list",
+              type: new ListSet<string>(["Single"])
+            }
+          ]
+        }
+      ])
+    );
+  });
 });

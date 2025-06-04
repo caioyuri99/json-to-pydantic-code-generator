@@ -2,6 +2,7 @@ import { TypeSet } from "../../../../src/modules/pydantic-code-generator/classes
 import { ClassModel } from "../../../../src/modules/pydantic-code-generator/types/ClassModel.type";
 import { reuseClasses } from "../../../../src/modules/pydantic-code-generator/functions/reuseClasses.function";
 import { ListSet } from "../../../../src/modules/pydantic-code-generator/classes/ListSet.class";
+import { ClassAttribute } from "../../../../src/modules/pydantic-code-generator/types/ClassAttribute.type";
 
 describe("reuseClasses", () => {
   test("reuseClasses: matches a class with identical attributes", () => {
@@ -187,5 +188,97 @@ describe("reuseClasses", () => {
         attributes: [{ name: "organizer", type: new TypeSet(["Person"]) }]
       }
     ]);
+  });
+
+  test("should update newAttribute.type when class is reused", () => {
+    const oldClasses: ClassModel[] = [
+      {
+        className: "User",
+        attributes: [
+          { name: "id", type: new TypeSet(["number"]) },
+          { name: "name", type: new TypeSet(["string"]) }
+        ]
+      }
+    ];
+
+    const newClasses: ClassModel[] = [
+      {
+        className: "UsersItem",
+        attributes: [
+          { name: "id", type: new TypeSet(["number"]) },
+          { name: "name", type: new TypeSet(["string"]) }
+        ]
+      }
+    ];
+
+    const newAttribute: ClassAttribute = {
+      name: "users",
+      type: new ListSet(["UsersItem"])
+    };
+
+    reuseClasses(oldClasses, newClasses, newAttribute);
+
+    expect([...newAttribute.type][0]).toBe("User");
+
+    expect(newClasses.length).toBe(0);
+  });
+
+  test("should not update newAttribute.type when no reusable class exists", () => {
+    const oldClasses: ClassModel[] = [
+      {
+        className: "Account",
+        attributes: [
+          { name: "id", type: new TypeSet(["number"]) },
+          { name: "balance", type: new TypeSet(["number"]) }
+        ]
+      }
+    ];
+
+    const newClasses: ClassModel[] = [
+      {
+        className: "UsersItem",
+        attributes: [
+          { name: "id", type: new TypeSet(["number"]) },
+          { name: "name", type: new TypeSet(["string"]) }
+        ]
+      }
+    ];
+
+    const newAttribute: ClassAttribute = {
+      name: "users",
+      type: new ListSet(["UsersItem"])
+    };
+
+    reuseClasses(oldClasses, newClasses, newAttribute);
+
+    expect([...newAttribute.type][0]).toBe("UsersItem");
+
+    expect(oldClasses.some((c) => c.className === "UsersItem")).toBe(true);
+  });
+
+  test("should work correctly when newAttribute is not provided", () => {
+    const oldClasses: ClassModel[] = [
+      {
+        className: "User",
+        attributes: [
+          { name: "id", type: new TypeSet(["number"]) },
+          { name: "name", type: new TypeSet(["string"]) }
+        ]
+      }
+    ];
+
+    const newClasses: ClassModel[] = [
+      {
+        className: "UsersItem",
+        attributes: [
+          { name: "id", type: new TypeSet(["number"]) },
+          { name: "name", type: new TypeSet(["string"]) }
+        ]
+      }
+    ];
+
+    reuseClasses(oldClasses, newClasses);
+
+    expect(newClasses.length).toBe(0);
   });
 });

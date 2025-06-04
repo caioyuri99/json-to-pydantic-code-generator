@@ -1,9 +1,11 @@
+import { ClassAttribute } from "../types/ClassAttribute.type";
 import { ClassModel } from "../types/ClassModel.type";
 import { equalTypes, hasType, replaceType } from "../utils/utils.module";
 
 function reuseClasses(
   oldClasses: ClassModel[],
-  newClasses: ClassModel[]
+  newClasses: ClassModel[],
+  newAttribute?: ClassAttribute
 ): void {
   while (newClasses.length > 0) {
     const newClass = newClasses.shift();
@@ -20,6 +22,7 @@ function reuseClasses(
       );
 
       if (coincidentalClass) {
+        // altera tipos dentro das classes restantes
         for (const classModel of newClasses) {
           classModel.attributes.map((e) => {
             if (hasType(e.type, newClass.className)) {
@@ -30,6 +33,15 @@ function reuseClasses(
               );
             }
           });
+        }
+
+        // se "newAttribute" é passado, altera tipo do novo atributo
+        if (newAttribute) {
+          replaceType(
+            newAttribute.type,
+            newClass.className,
+            coincidentalClass.className
+          );
         }
       } else {
         oldClasses.push(newClass);

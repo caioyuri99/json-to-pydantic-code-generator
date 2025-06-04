@@ -2,16 +2,19 @@ import { ClassModel } from "../types/ClassModel.type";
 import { getType } from "./getType.function";
 import { processArray } from "./processArray.function";
 import { ClassAttribute } from "../types/ClassAttribute.type";
-import { getClassName, getNonDuplicateName } from "../utils/utils.module";
+import {
+  getClassName,
+  getNonDuplicateName,
+  replaceType
+} from "../utils/utils.module";
 import { TypeSet } from "../classes/TypeSet.class";
-
-// TODO: adicionar flag preferClassReuse: define se vai reutilizar classes geradas anteriormente para tipar as novas classes geradas
-// TODO: adicionar flag mergeEqualNameClasses: define se vai fazer o merge de classes com nomes iguais
+import { reuseClasses } from "./reuseClasses.function";
 
 function generateClasses(
   json: any,
   name: string = "Model",
-  existentClassNames: string[] = []
+  existentClassNames: string[] = [],
+  preferClassReuse = false
 ): ClassModel[] {
   const res: ClassModel[] = [];
   const obj: ClassModel = {
@@ -41,9 +44,13 @@ function generateClasses(
         ecn
       );
 
-      res.push(...generatedClasses);
+      if (preferClassReuse) {
+        reuseClasses(res, generatedClasses);
+      } else {
+        res.push(...generatedClasses);
+      }
 
-      const lastGeneratedClass = generatedClasses.at(-1);
+      const lastGeneratedClass = res.at(-1);
 
       if (lastGeneratedClass) {
         obj.attributes.push({
@@ -52,12 +59,15 @@ function generateClasses(
         });
       }
     } else if (Array.isArray(value)) {
-      const processedArray = processArray(value, key, ecn);
+      const processedArray = processArray(value, key, ecn, preferClassReuse);
       const generatedClassModels = processedArray.generatedClassModels;
-
-      res.push(...generatedClassModels);
-
       const newAttribute = processedArray.newAttribute;
+
+      if (preferClassReuse) {
+        reuseClasses(res, generatedClassModels, newAttribute);
+      } else {
+        res.push(...generatedClassModels);
+      }
 
       obj.attributes.push(newAttribute);
     } else {

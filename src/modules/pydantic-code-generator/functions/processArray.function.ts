@@ -16,7 +16,8 @@ function processArray(
   value: any[],
   name: string = "Model",
   existentClassNames: string[] = [],
-  fromObjectArrayJson = false
+  fromObjectArrayJson = false,
+  preferClassReuse = false
 ): { generatedClassModels: ClassModel[]; newAttribute: ClassAttribute } {
   const generatedClassModels: ClassModel[] = [];
   const types = new ListSet<string>();
@@ -29,7 +30,7 @@ function processArray(
     }
 
     if (Array.isArray(v)) {
-      const res = processArray(v, name, existentClassNames);
+      const res = processArray(v, name, existentClassNames, preferClassReuse);
 
       generatedClassModels.push(...res.generatedClassModels);
 
@@ -48,7 +49,8 @@ function processArray(
       ...generateClasses(
         v,
         getNonDuplicateName(newName, existentClassNames),
-        existentClassNames
+        existentClassNames,
+        preferClassReuse
       )
     );
 
