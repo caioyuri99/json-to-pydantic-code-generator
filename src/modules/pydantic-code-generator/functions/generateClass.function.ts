@@ -17,6 +17,13 @@ function generateClass(obj: ClassModel, indentation: number = 2): string {
       e.name = e.name.replaceAll(/[^a-zA-Z0-9_]/g, "_");
     }
 
+    let originalName = e.name;
+    let c = 1;
+    while (obj.attributes.filter((el) => el.name === e.name).length > 1) {
+      e.name = `${originalName}_${c}`;
+      c++;
+    }
+
     return e;
   });
 

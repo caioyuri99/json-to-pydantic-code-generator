@@ -231,4 +231,46 @@ describe("generateClass", () => {
       "field_42__value: int = Field(..., alias='42%!value')"
     );
   });
+
+  test("generateClass should resolve attribute name conflicts caused by normalization", () => {
+    const input: ClassModel = {
+      className: "Example",
+      attributes: [
+        { name: "first-name", type: new Set(["str"]) },
+        { name: "first_name", type: new Set(["str"]) },
+        { name: "first name", type: new Set(["str"]) }
+      ]
+    };
+
+    const result = generateClass(input);
+
+    expect(result).toContain(dedent`
+    class Example(BaseModel):
+      first_name_1: str = Field(..., alias='first-name')
+      first_name: str
+      first_name_2: str = Field(..., alias='first name')
+  `);
+  });
+
+  test("generateClass should apply multiple suffixes to avoid multiple normalized conflicts", () => {
+    const input: ClassModel = {
+      className: "ComplexExample",
+      attributes: [
+        { name: "attr!", type: new Set(["str"]) },
+        { name: "attr@", type: new Set(["str"]) },
+        { name: "attr#", type: new Set(["str"]) },
+        { name: "attr", type: new Set(["str"]) }
+      ]
+    };
+
+    const result = generateClass(input);
+
+    expect(result).toContain(dedent`
+    class ComplexExample(BaseModel):
+      attr_: str = Field(..., alias='attr!')
+      attr__1: str = Field(..., alias='attr@')
+      attr__2: str = Field(..., alias='attr#')
+      attr: str
+  `);
+  });
 });
