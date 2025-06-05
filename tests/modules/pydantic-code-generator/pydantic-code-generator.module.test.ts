@@ -201,7 +201,7 @@ describe("generatePydanticCode", () => {
 
   test("generatePydanticCode uses indentation of 2 spaces", () => {
     const json = { name: "John", age: 30 };
-    const code = generatePydanticCode(json, 2);
+    const code = generatePydanticCode(json, "Model", { indentation: 2 });
 
     expect(code).toBe(dedent`
       from pydantic import BaseModel
@@ -215,7 +215,7 @@ describe("generatePydanticCode", () => {
 
   test("generatePydanticCode uses indentation of 1 space", () => {
     const json = { name: "John", age: 30 };
-    const code = generatePydanticCode(json, 1);
+    const code = generatePydanticCode(json, "Model", { indentation: 1 });
 
     expect(code).toBe(dedent`
       from pydantic import BaseModel
@@ -229,7 +229,7 @@ describe("generatePydanticCode", () => {
 
   test("generatePydanticCode uses indentation of 8 spaces", () => {
     const json = { name: "John", age: 30 };
-    const code = generatePydanticCode(json, 8);
+    const code = generatePydanticCode(json, "Model", { indentation: 8 });
 
     console.log(code);
 
@@ -245,15 +245,116 @@ describe("generatePydanticCode", () => {
 
   test("generatePydanticCode throws error if indentation is 0", () => {
     const json = { name: "John", age: 30 };
-    expect(() => generatePydanticCode(json, 0)).toThrow(
-      "ERROR: Indentation must be greater than 0"
-    );
+    expect(() =>
+      generatePydanticCode(json, "Model", { indentation: 0 })
+    ).toThrow("ERROR: Indentation must be greater than 0");
   });
 
   test("generatePydanticCode throws error if indentation is negative", () => {
     const json = { name: "John", age: 30 };
-    expect(() => generatePydanticCode(json, -2)).toThrow(
-      "ERROR: Indentation must be greater than 0"
-    );
+    expect(() =>
+      generatePydanticCode(json, "Model", { indentation: -2 })
+    ).toThrow("ERROR: Indentation must be greater than 0");
+  });
+
+  test("preferClassReuse as false", () => {
+    const json = { user1: { name: "Alice" }, user2: { name: "Bob" } };
+    const code = generatePydanticCode(json, "Model", {
+      preferClassReuse: false
+    });
+
+    expect(code).toBe(dedent`
+      from pydantic import BaseModel
+
+
+      class User1(BaseModel):
+          name: str
+
+
+      class User2(BaseModel):
+          name: str
+
+
+      class Model(BaseModel):
+          user1: User1
+          user2: User2
+      `);
+  });
+
+  test("preferClassReuse as true", () => {
+    const json = { user1: { name: "Alice" }, user2: { name: "Bob" } };
+    const code = generatePydanticCode(json, "Model", {
+      preferClassReuse: true
+    });
+
+    expect(code).toBe(dedent`
+      from pydantic import BaseModel
+
+
+      class User1(BaseModel):
+          name: str
+
+
+      class Model(BaseModel):
+          user1: User1
+          user2: User1
+      `);
+  });
+
+  test("preferClassReuse with complex, nested structure", () => {
+    const json = {
+      user1: { user: { name: "Alice", age: 30 } },
+      user2: { user: { name: "Bob", age: 25 } }
+    };
+    const code = generatePydanticCode(json, "Model", {
+      preferClassReuse: true
+    });
+
+    expect(code).toBe(dedent`
+      from pydantic import BaseModel
+
+
+      class User(BaseModel):
+          name: str
+          age: int
+
+
+      class User1(BaseModel):
+          user: User
+
+
+      class Model(BaseModel):
+          user1: User1
+          user2: User1
+      `);
+  });
+
+  test("preferClassReuse with different structure objects", () => {
+    const json = {
+      user1: { name: "Alice", age: 30 },
+      user2: { name: "Bob", city: "Paris" }
+    };
+    const code = generatePydanticCode(json, "Model", {
+      preferClassReuse: true
+    });
+
+    expect(code).toBe(dedent`
+      from pydantic import BaseModel
+
+
+      class User1(BaseModel):
+          name: str
+          age: int
+
+
+      class User2(BaseModel):
+          name: str
+          city: str
+
+
+      class Model(BaseModel):
+          user1: User1
+          user2: User2
+      `);
   });
 });
