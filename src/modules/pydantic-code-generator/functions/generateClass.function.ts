@@ -2,7 +2,7 @@ import { PYTHON_RESERVED_KEYWORDS } from "../consts/PYTHON_RESERVED_KEYWORDS.con
 import { ClassModel } from "../types/ClassModel.type";
 import { setToTypeAnnotation } from "./setToTypeAnnotation.function";
 
-function generateClass(obj: ClassModel, indentation: number = 2): string {
+function generateClass(obj: ClassModel, indentation: number = 4): string {
   obj.attributes.map((e) => {
     if (PYTHON_RESERVED_KEYWORDS.has(e.name)) {
       e.alias = e.name;

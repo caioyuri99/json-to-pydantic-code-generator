@@ -25,7 +25,7 @@ describe("generateClass", () => {
 
     const expected = dedent`
       class SingleAttributeClass(BaseModel):
-        id: int
+          id: int
     `;
     expect(generateClass(input)).toBe(expected);
   });
@@ -42,9 +42,9 @@ describe("generateClass", () => {
 
     const expected = dedent`
       class MultiAttributeClass(BaseModel):
-        name: str
-        age: int
-        is_active: bool
+          name: str
+          age: int
+          is_active: bool
     `;
     expect(generateClass(input)).toBe(expected);
   });
@@ -57,7 +57,7 @@ describe("generateClass", () => {
 
     const expected = dedent`
       class CustomClass(BaseModel):
-        custom_field: str
+          custom_field: str
     `;
     expect(generateClass(input)).toBe(expected);
   });
@@ -73,8 +73,8 @@ describe("generateClass", () => {
 
     const expected = dedent`
       class ComplexTypeClass(BaseModel):
-        tags: List[str]
-        config: Optional[Config]
+          tags: List[str]
+          config: Optional[Config]
     `;
     expect(generateClass(input)).toBe(expected);
   });
@@ -246,9 +246,9 @@ describe("generateClass", () => {
 
     expect(result).toContain(dedent`
     class Example(BaseModel):
-      first_name_1: str = Field(..., alias='first-name')
-      first_name: str
-      first_name_2: str = Field(..., alias='first name')
+        first_name_1: str = Field(..., alias='first-name')
+        first_name: str
+        first_name_2: str = Field(..., alias='first name')
   `);
   });
 
@@ -267,10 +267,10 @@ describe("generateClass", () => {
 
     expect(result).toContain(dedent`
     class ComplexExample(BaseModel):
-      attr_: str = Field(..., alias='attr!')
-      attr__1: str = Field(..., alias='attr@')
-      attr__2: str = Field(..., alias='attr#')
-      attr: str
+        attr_: str = Field(..., alias='attr!')
+        attr__1: str = Field(..., alias='attr@')
+        attr__2: str = Field(..., alias='attr#')
+        attr: str
   `);
   });
 });

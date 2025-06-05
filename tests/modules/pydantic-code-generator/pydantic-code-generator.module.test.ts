@@ -12,8 +12,8 @@ describe("generatePydanticCode", () => {
 
 
       class Model(BaseModel):
-        id: int
-        name: str
+          id: int
+          name: str
     `);
   });
 
@@ -33,18 +33,18 @@ describe("generatePydanticCode", () => {
 
 
       class Address(BaseModel):
-        city: str
-        zip: str
+          city: str
+          zip: str
 
 
       class Profile(BaseModel):
-        age: int
-        address: Address
+          age: int
+          address: Address
 
 
       class Model(BaseModel):
-        id: int
-        profile: Profile
+          id: int
+          profile: Profile
     `);
   });
 
@@ -63,8 +63,8 @@ describe("generatePydanticCode", () => {
 
 
       class Model(BaseModel):
-        id: int
-        tags: List[str]
+          id: int
+          tags: List[str]
     `);
   });
 
@@ -84,9 +84,9 @@ describe("generatePydanticCode", () => {
 
 
       class Model(BaseModel):
-        id: int
-        value: str
-        optional_field: Any
+          id: int
+          value: str
+          optional_field: Any
     `);
   });
 
@@ -103,8 +103,8 @@ describe("generatePydanticCode", () => {
 
 
       class Model(BaseModel):
-        id: int
-        name: str
+          id: int
+          name: str
     `);
   });
 
@@ -127,13 +127,13 @@ describe("generatePydanticCode", () => {
 
 
       class Profile(BaseModel):
-        age: int
-        city: str
+          age: int
+          city: str
 
 
       class Model(BaseModel):
-        id: int
-        profile: Profile
+          id: int
+          profile: Profile
     `);
   });
 
@@ -160,7 +160,7 @@ describe("generatePydanticCode", () => {
 
 
       class Model(BaseModel):
-        matrix: List[List[List[int]]]
+          matrix: List[List[List[int]]]
     `);
   });
 
@@ -179,9 +179,81 @@ describe("generatePydanticCode", () => {
 
 
       class Model(BaseModel):
-        id: int
-        name: str
-        age: Optional[int]
+          id: int
+          name: str
+          age: Optional[int]
     `);
+  });
+
+  test("generatePydanticCode uses default indentation of 4 spaces", () => {
+    const json = { name: "John", age: 30 };
+    const code = generatePydanticCode(json);
+
+    expect(code).toBe(dedent`
+      from pydantic import BaseModel
+
+
+      class Model(BaseModel):
+          name: str
+          age: int
+    `);
+  });
+
+  test("generatePydanticCode uses indentation of 2 spaces", () => {
+    const json = { name: "John", age: 30 };
+    const code = generatePydanticCode(json, 2);
+
+    expect(code).toBe(dedent`
+      from pydantic import BaseModel
+
+
+      class Model(BaseModel):
+        name: str
+        age: int
+    `);
+  });
+
+  test("generatePydanticCode uses indentation of 1 space", () => {
+    const json = { name: "John", age: 30 };
+    const code = generatePydanticCode(json, 1);
+
+    expect(code).toBe(dedent`
+      from pydantic import BaseModel
+
+
+      class Model(BaseModel):
+       name: str
+       age: int
+    `);
+  });
+
+  test("generatePydanticCode uses indentation of 8 spaces", () => {
+    const json = { name: "John", age: 30 };
+    const code = generatePydanticCode(json, 8);
+
+    console.log(code);
+
+    expect(code).toBe(dedent`
+      from pydantic import BaseModel
+
+
+      class Model(BaseModel):
+              name: str
+              age: int
+    `);
+  });
+
+  test("generatePydanticCode throws error if indentation is 0", () => {
+    const json = { name: "John", age: 30 };
+    expect(() => generatePydanticCode(json, 0)).toThrow(
+      "ERROR: Indentation must be greater than 0"
+    );
+  });
+
+  test("generatePydanticCode throws error if indentation is negative", () => {
+    const json = { name: "John", age: 30 };
+    expect(() => generatePydanticCode(json, -2)).toThrow(
+      "ERROR: Indentation must be greater than 0"
+    );
   });
 });
