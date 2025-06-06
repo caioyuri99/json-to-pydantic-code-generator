@@ -357,4 +357,123 @@ describe("generatePydanticCode", () => {
           user2: User2
       `);
   });
+
+  test("forceOptional = 'None': all attributes are required", () => {
+    const json = {
+      name: "Alice",
+      age: 30
+    };
+
+    const code = generatePydanticCode(json, "Model", {
+      forceOptional: "None",
+      indentation: 2
+    });
+
+    expect(code).toContain("name: str");
+    expect(code).toContain("age: int");
+    expect(code).not.toContain("Optional[");
+  });
+
+  test("forceOptional = 'OnlyRootClass': only root class attributes are optional", () => {
+    const json = {
+      name: "Alice",
+      address: {
+        street: "Main St",
+        zip: "12345"
+      }
+    };
+
+    const code = generatePydanticCode(json, "Model", {
+      forceOptional: "OnlyRootClass",
+      indentation: 2
+    });
+
+    expect(code).toContain("name: Optional[str]");
+    expect(code).toContain("address: Optional[Address]");
+    expect(code).toContain("street: str");
+    expect(code).toContain("zip: str");
+  });
+
+  test("forceOptional = 'AllClasses': all attributes in all classes are optional", () => {
+    const json = {
+      name: "Alice",
+      address: {
+        street: "Main St",
+        zip: "12345"
+      }
+    };
+
+    const code = generatePydanticCode(json, "Model", {
+      forceOptional: "AllClasses",
+      indentation: 2
+    });
+
+    expect(code).toContain("name: Optional[str]");
+    expect(code).toContain("address: Optional[Address]");
+    expect(code).toContain("street: Optional[str]");
+    expect(code).toContain("zip: Optional[str]");
+  });
+
+  test("forceOptional not provided: all attributes are required by default", () => {
+    const json = {
+      id: 1,
+      name: "Product"
+    };
+
+    const code = generatePydanticCode(json, "Model", {
+      indentation: 2
+    });
+
+    expect(code).toContain("id: int");
+    expect(code).toContain("name: str");
+    expect(code).not.toContain("Optional[");
+  });
+
+  test("forceOptional = 'AllClasses' with array of objects", () => {
+    const json = {
+      items: [
+        { name: "A", value: 1 },
+        { name: "B", value: 2 }
+      ]
+    };
+
+    const code = generatePydanticCode(json, "Model", {
+      forceOptional: "AllClasses",
+      indentation: 2
+    });
+
+    expect(code).toContain("items: Optional[List[Item]]");
+    expect(code).toContain("name: Optional[str]");
+    expect(code).toContain("value: Optional[int]");
+  });
+
+  test("forceOptional = 'OnlyRootClass' with array of objects", () => {
+    const json = {
+      items: [{ name: "A", value: 1 }]
+    };
+
+    const code = generatePydanticCode(json, "Model", {
+      forceOptional: "OnlyRootClass",
+      indentation: 2
+    });
+
+    expect(code).toContain("items: Optional[List[Item]]");
+    expect(code).toContain("name: str");
+    expect(code).toContain("value: int");
+  });
+
+  test("forceOptional = 'None' with array of objects", () => {
+    const json = {
+      items: [{ name: "A", value: 1 }]
+    };
+
+    const code = generatePydanticCode(json, "Model", {
+      forceOptional: "None",
+      indentation: 2
+    });
+
+    expect(code).toContain("items: List[Item]");
+    expect(code).toContain("name: str");
+    expect(code).toContain("value: int");
+  });
 });
