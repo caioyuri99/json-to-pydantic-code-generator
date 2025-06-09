@@ -265,12 +265,106 @@ describe("generateClass", () => {
 
     const result = generateClass(input);
 
-    expect(result).toContain(dedent`
+    expect(result).toBe(dedent`
     class ComplexExample(BaseModel):
         attr_: str = Field(..., alias='attr!')
         attr__1: str = Field(..., alias='attr@')
         attr__2: str = Field(..., alias='attr#')
         attr: str
   `);
+  });
+
+  test("converts camelCase to snake_case and adds alias when aliasCamelCase is true", () => {
+    const model: ClassModel = {
+      className: "Model",
+      attributes: [
+        { name: "myValue", type: new TypeSet(["int"]) },
+        { name: "anotherValue", type: new TypeSet(["str"]) }
+      ]
+    };
+
+    const result = generateClass(model, 2, true);
+
+    expect(result).toBe(dedent`
+    class Model(BaseModel):
+      my_value: int = Field(..., alias='myValue')
+      another_value: str = Field(..., alias='anotherValue')
+  `);
+  });
+
+  test("does not convert or add alias when aliasCamelCase is false", () => {
+    const model: ClassModel = {
+      className: "Model",
+      attributes: [
+        { name: "myValue", type: new TypeSet(["int"]) },
+        { name: "anotherValue", type: new TypeSet(["str"]) }
+      ]
+    };
+
+    const result = generateClass(model, 2, false);
+
+    expect(result).toBe(dedent`
+    class Model(BaseModel):
+      myValue: int
+      anotherValue: str
+  `);
+  });
+
+  test("mixed naming: only camelCase names get converted and aliased", () => {
+    const model: ClassModel = {
+      className: "MixedModel",
+      attributes: [
+        { name: "myValue", type: new TypeSet(["int"]) },
+        { name: "snake_case", type: new TypeSet(["str"]) }
+      ]
+    };
+
+    const result = generateClass(model, 2, true);
+
+    expect(result).toBe(dedent`
+    class MixedModel(BaseModel):
+      my_value: int = Field(..., alias='myValue')
+      snake_case: str
+  `);
+  });
+
+  test("test camelCase to snake_case conversion", () => {
+    const model: ClassModel = {
+      className: "TestModel",
+      attributes: [
+        { name: "myValue", type: new TypeSet(["int"]) },
+        { name: "anotherTestHere", type: new TypeSet(["int"]) },
+        { name: "HTMLParser", type: new TypeSet(["int"]) },
+        { name: "getHTTPResponse", type: new TypeSet(["int"]) },
+        { name: "parseXMLAndJSON", type: new TypeSet(["int"]) },
+        { name: "VALUE", type: new TypeSet(["int"]) },
+        { name: "value", type: new TypeSet(["int"]) },
+        { name: "1stPlace", type: new TypeSet(["int"]) },
+        { name: "error404Code", type: new TypeSet(["int"]) },
+        { name: "error404HTMLCode", type: new TypeSet(["int"]) },
+        { name: "price($USD)", type: new TypeSet(["int"]) },
+        { name: "order#ID", type: new TypeSet(["int"]) },
+        { name: "last-Modified@Date", type: new TypeSet(["int"]) }
+      ]
+    };
+
+    const result = generateClass(model, 2, true);
+
+    expect(result).toBe(dedent`
+      class TestModel(BaseModel):
+        my_value: int = Field(..., alias='myValue')
+        another_test_here: int = Field(..., alias='anotherTestHere')
+        html_parser: int = Field(..., alias='HTMLParser')
+        get_http_response: int = Field(..., alias='getHTTPResponse')
+        parse_xml_and_json: int = Field(..., alias='parseXMLAndJSON')
+        value_1: int = Field(..., alias='VALUE')
+        value: int
+        field_1st_place: int = Field(..., alias='1stPlace')
+        error404_code: int = Field(..., alias='error404Code')
+        error404_html_code: int = Field(..., alias='error404HTMLCode')
+        price__usd_: int = Field(..., alias='price($USD)')
+        order_id: int = Field(..., alias='order#ID')
+        last_modified_date: int = Field(..., alias='last-Modified@Date')
+      `);
   });
 });

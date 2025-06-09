@@ -20,12 +20,14 @@ function generatePydanticCode(
     indentation?: number;
     preferClassReuse?: boolean;
     forceOptional?: "None" | "OnlyRootClass" | "AllClasses";
+    aliasCamelCase?: boolean;
   } = {}
 ): string {
   const {
     indentation = 4,
     preferClassReuse = false,
-    forceOptional = "None"
+    forceOptional = "None",
+    aliasCamelCase = false
   } = flags;
 
   if (indentation < 1) {
@@ -43,7 +45,7 @@ function generatePydanticCode(
   }
 
   const classes = generatedClasses
-    .map((e) => generateClass(e, indentation))
+    .map((e) => generateClass(e, indentation, aliasCamelCase))
     .join("\n\n\n");
 
   const imports = getImports(classes);

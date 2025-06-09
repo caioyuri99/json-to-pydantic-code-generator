@@ -476,4 +476,123 @@ describe("generatePydanticCode", () => {
     expect(code).toContain("name: str");
     expect(code).toContain("value: int");
   });
+
+  test("should convert camelCase attributes to snake_case with alias", () => {
+    const json = {
+      userName: "Alice",
+      emailAddress: "alice@example.com"
+    };
+
+    const result = generatePydanticCode(json, "User", {
+      aliasCamelCase: true,
+      indentation: 2
+    });
+
+    expect(result).toBe(dedent`
+    from pydantic import BaseModel, Field
+
+
+    class User(BaseModel):
+      user_name: str = Field(..., alias='userName')
+      email_address: str = Field(..., alias='emailAddress')
+  `);
+  });
+
+  test("should not convert camelCase when aliasCamelCase is false", () => {
+    const json = {
+      userName: "Bob"
+    };
+
+    const result = generatePydanticCode(json, "User", {
+      aliasCamelCase: false,
+      indentation: 2
+    });
+
+    expect(result).toBe(dedent`
+    from pydantic import BaseModel
+
+
+    class User(BaseModel):
+      userName: str
+  `);
+  });
+
+  test("should ignore snake_case attributes even if aliasCamelCase is true", () => {
+    const json = {
+      user_id: 1,
+      fullName: "Test"
+    };
+
+    const result = generatePydanticCode(json, "User", {
+      aliasCamelCase: true,
+      indentation: 2
+    });
+
+    expect(result).toBe(dedent`
+    from pydantic import BaseModel, Field
+
+
+    class User(BaseModel):
+      user_id: int
+      full_name: str = Field(..., alias='fullName')
+  `);
+  });
+
+  test("should handle nested camelCase fields with alias", () => {
+    const json = {
+      userInfo: {
+        fullName: "Alice Johnson",
+        dateOfBirth: "1990-01-01"
+      }
+    };
+
+    const result = generatePydanticCode(json, "Model", {
+      aliasCamelCase: true,
+      indentation: 2
+    });
+
+    expect(result).toBe(dedent`
+    from pydantic import BaseModel, Field
+
+
+    class UserInfo(BaseModel):
+      full_name: str = Field(..., alias='fullName')
+      date_of_birth: str = Field(..., alias='dateOfBirth')
+
+
+    class Model(BaseModel):
+      user_info: UserInfo = Field(..., alias='userInfo')
+  `);
+  });
+
+  test("should handle deeply nested camelCase with aliases", () => {
+    const json = {
+      outerLayer: {
+        innerLayer: {
+          someValue: 42
+        }
+      }
+    };
+
+    const result = generatePydanticCode(json, "Root", {
+      aliasCamelCase: true,
+      indentation: 2
+    });
+
+    expect(result).toBe(dedent`
+    from pydantic import BaseModel, Field
+
+
+    class InnerLayer(BaseModel):
+      some_value: int = Field(..., alias='someValue')
+
+
+    class OuterLayer(BaseModel):
+      inner_layer: InnerLayer = Field(..., alias='innerLayer')
+
+
+    class Root(BaseModel):
+      outer_layer: OuterLayer = Field(..., alias='outerLayer')
+  `);
+  });
 });
