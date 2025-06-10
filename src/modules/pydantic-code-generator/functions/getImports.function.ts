@@ -5,6 +5,10 @@ function getImports(s: string): string {
     types.push("Any");
   }
 
+  if (s.match(/Dict\[[^\]]+\]/g)) {
+    types.push("Dict");
+  }
+
   if (s.match(/List\[[^\]]+\]/g)) {
     types.push("List");
   }

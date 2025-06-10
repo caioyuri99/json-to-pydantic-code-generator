@@ -201,6 +201,10 @@ function replaceType(
   }
 }
 
+function hasOwnProperties(obj: any): boolean {
+  return Object.keys(obj).length > 0;
+}
+
 export {
   nonCommonElements,
   getClassName,
@@ -211,5 +215,6 @@ export {
   hasType,
   addType,
   equalTypes,
-  replaceType
+  replaceType,
+  hasOwnProperties
 };

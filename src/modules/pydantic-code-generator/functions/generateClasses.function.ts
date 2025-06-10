@@ -2,7 +2,11 @@ import { ClassModel } from "../types/ClassModel.type";
 import { getType } from "./getType.function";
 import { processArray } from "./processArray.function";
 import { ClassAttribute } from "../types/ClassAttribute.type";
-import { getClassName, getNonDuplicateName } from "../utils/utils.module";
+import {
+  getClassName,
+  getNonDuplicateName,
+  hasOwnProperties
+} from "../utils/utils.module";
 import { TypeSet } from "../classes/TypeSet.class";
 import { reuseClasses } from "./reuseClasses.function";
 
@@ -33,7 +37,12 @@ function generateClasses(
     const ecn = existentClassNames.concat(res.map((e) => e.className));
     ecn.push(name);
 
-    if (value && typeof value === "object" && !Array.isArray(value)) {
+    if (
+      value &&
+      typeof value === "object" &&
+      !Array.isArray(value) &&
+      hasOwnProperties(value)
+    ) {
       const generatedClasses = generateClasses(
         value,
         getNonDuplicateName(getClassName(key), ecn),

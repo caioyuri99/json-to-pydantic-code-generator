@@ -595,4 +595,32 @@ describe("generatePydanticCode", () => {
       outer_layer: OuterLayer = Field(..., alias='outerLayer')
   `);
   });
+
+  test("empty object and empty array", () => {
+    const json = {
+      user: {
+        name: "Alice",
+        profile: {}
+      }
+    };
+
+    const result = generatePydanticCode(json, "Model", { indentation: 2 });
+
+    console.log(result);
+
+    expect(result).toBe(dedent`
+      from typing import Any, Dict
+
+      from pydantic import BaseModel
+
+
+      class User(BaseModel):
+        name: str
+        profile: Dict[str, Any]
+
+
+      class Model(BaseModel):
+        user: User
+      `);
+  });
 });
