@@ -13,6 +13,7 @@ describe("generateClass", () => {
 
     const expected = dedent`
       class EmptyClass(BaseModel):
+          pass
     `;
     expect(generateClass(input)).toBe(expected);
   });

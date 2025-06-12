@@ -64,12 +64,15 @@ function generateClass(
 
   // FIXME: Inicializar com "None" todos os atributos "Optional"
 
-  const attributes = obj.attributes
-    .map(
-      (attr) =>
-        `${" ".repeat(indentation)}${attr.name}: ${setToTypeAnnotation(attr.type)}${attr.alias ? ` = Field(..., alias='${attr.alias}')` : ""}`
-    )
-    .join("\n");
+  const attributes =
+    obj.attributes.length > 0
+      ? obj.attributes
+          .map(
+            (attr) =>
+              `${" ".repeat(indentation)}${attr.name}: ${setToTypeAnnotation(attr.type)}${attr.alias ? ` = Field(..., alias='${attr.alias}')` : ""}`
+          )
+          .join("\n")
+      : `${" ".repeat(indentation)}pass`;
 
   return `class ${obj.className}(BaseModel):\n${attributes}`.trim();
 }

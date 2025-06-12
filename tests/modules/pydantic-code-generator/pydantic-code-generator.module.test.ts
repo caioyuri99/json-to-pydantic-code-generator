@@ -670,4 +670,18 @@ describe("generatePydanticCode", () => {
         shortcuts: List[Shortcut]
       `);
   });
+
+  test("empty class input", () => {
+    const json = {};
+
+    const result = generatePydanticCode(json, "Model", { indentation: 2 });
+
+    expect(result).toBe(dedent`
+      from pydantic import BaseModel
+
+
+      class Model(BaseModel):
+        pass
+      `);
+  });
 });
