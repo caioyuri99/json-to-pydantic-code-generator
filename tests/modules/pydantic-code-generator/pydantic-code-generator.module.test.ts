@@ -596,7 +596,7 @@ describe("generatePydanticCode", () => {
   `);
   });
 
-  test("empty object and empty array", () => {
+  test("empty object", () => {
     const json = {
       user: {
         name: "Alice",
@@ -621,6 +621,53 @@ describe("generatePydanticCode", () => {
 
       class Model(BaseModel):
         user: User
+      `);
+  });
+
+  test("heterogeneus list with empty object", () => {
+    const json = {
+      tags: ["python", {}, "pydantic"]
+    };
+
+    const result = generatePydanticCode(json, "Model", { indentation: 2 });
+
+    expect(result).toBe(dedent`
+      from typing import Any, Dict, List, Union
+
+      from pydantic import BaseModel
+
+
+      class Model(BaseModel):
+        tags: List[Union[Dict[str, Any], str]]
+      `);
+  });
+
+  test("object list with empty object", () => {
+    const json = {
+      shortcuts: [
+        {},
+        {
+          key: "Ctrl+S",
+          action: "save"
+        }
+      ]
+    };
+
+    const result = generatePydanticCode(json, "Model", { indentation: 2 });
+
+    expect(result).toBe(dedent`
+      from typing import List, Optional
+
+      from pydantic import BaseModel
+
+
+      class Shortcut(BaseModel):
+        key: Optional[str]
+        action: Optional[str]
+
+
+      class Model(BaseModel):
+        shortcuts: List[Shortcut]
       `);
   });
 });

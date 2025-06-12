@@ -6,7 +6,8 @@ import {
   getArrayClassName,
   getClassName,
   getNonDuplicateName,
-  hasType
+  hasType,
+  replaceType
 } from "../utils/utils.module";
 import { generateClasses } from "./generateClasses.function";
 import { getType } from "./getType.function";
@@ -76,6 +77,21 @@ function processArray(
 
     return 0;
   });
+
+  if (
+    orderedClassModels.length === 1 &&
+    orderedClassModels[0].attributes.length === 0
+  ) {
+    replaceType(types, orderedClassModels[0].className, "Dict[str, Any]");
+
+    return {
+      generatedClassModels: [],
+      newAttribute: {
+        name: name,
+        type: types
+      }
+    };
+  }
 
   return {
     generatedClassModels: orderedClassModels,

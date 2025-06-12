@@ -461,4 +461,15 @@ describe("processArray", () => {
     expect(generatedClassModels[0].className).toBe("Id1");
     expect([...newAttribute.type]).toEqual(["Id1"]);
   });
+
+  test("should handle empty objects in array", () => {
+    const arr = ["python", {}, "typescript"];
+    const { generatedClassModels, newAttribute } = processArray(
+      arr,
+      "languages"
+    );
+
+    expect(generatedClassModels).toHaveLength(0);
+    expect(newAttribute.type).toEqual(new ListSet(["str", "Dict[str, Any]"]));
+  });
 });

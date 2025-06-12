@@ -62,6 +62,8 @@ function generateClass(
     return e;
   });
 
+  // FIXME: Inicializar com "None" todos os atributos "Optional"
+
   const attributes = obj.attributes
     .map(
       (attr) =>
