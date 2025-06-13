@@ -23,7 +23,7 @@ function getImports(s: string): string {
 
   const pydanticImports = ["BaseModel"];
 
-  if (s.includes("= Field(..., alias='")) {
+  if (s.includes("= Field(")) {
     pydanticImports.push("Field");
   }
 

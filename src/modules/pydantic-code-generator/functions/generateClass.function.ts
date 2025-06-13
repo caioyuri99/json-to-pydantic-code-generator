@@ -62,15 +62,20 @@ function generateClass(
     return e;
   });
 
-  // FIXME: Inicializar com "None" todos os atributos "Optional"
-
   const attributes =
     obj.attributes.length > 0
       ? obj.attributes
-          .map(
-            (attr) =>
-              `${" ".repeat(indentation)}${attr.name}: ${setToTypeAnnotation(attr.type)}${attr.alias ? ` = Field(..., alias='${attr.alias}')` : ""}`
-          )
+          .map((attr) => {
+            let posfix = "";
+
+            if (attr.alias) {
+              posfix = ` = Field(${attr.type.has("Any") ? "None" : "..."}, alias='${attr.alias}')`;
+            } else if (attr.type.has("Any") && attr.type.size > 1) {
+              posfix = " = None";
+            }
+
+            return `${" ".repeat(indentation)}${attr.name}: ${setToTypeAnnotation(attr.type)}${posfix}`;
+          })
           .join("\n")
       : `${" ".repeat(indentation)}pass`;
 

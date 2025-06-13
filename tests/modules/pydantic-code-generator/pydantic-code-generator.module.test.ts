@@ -181,7 +181,7 @@ describe("generatePydanticCode", () => {
       class Model(BaseModel):
           id: int
           name: str
-          age: Optional[int]
+          age: Optional[int] = None
     `);
   });
 
@@ -409,9 +409,9 @@ describe("generatePydanticCode", () => {
     });
 
     expect(code).toContain("name: Optional[str]");
-    expect(code).toContain("address: Optional[Address]");
-    expect(code).toContain("street: Optional[str]");
-    expect(code).toContain("zip: Optional[str]");
+    expect(code).toContain("address: Optional[Address] = None");
+    expect(code).toContain("street: Optional[str] = None");
+    expect(code).toContain("zip: Optional[str] = None");
   });
 
   test("forceOptional not provided: all attributes are required by default", () => {
@@ -442,9 +442,9 @@ describe("generatePydanticCode", () => {
       indentation: 2
     });
 
-    expect(code).toContain("items: Optional[List[Item]]");
-    expect(code).toContain("name: Optional[str]");
-    expect(code).toContain("value: Optional[int]");
+    expect(code).toContain("items: Optional[List[Item]] = None");
+    expect(code).toContain("name: Optional[str] = None");
+    expect(code).toContain("value: Optional[int] = None");
   });
 
   test("forceOptional = 'OnlyRootClass' with array of objects", () => {
@@ -662,8 +662,8 @@ describe("generatePydanticCode", () => {
 
 
       class Shortcut(BaseModel):
-        key: Optional[str]
-        action: Optional[str]
+        key: Optional[str] = None
+        action: Optional[str] = None
 
 
       class Model(BaseModel):
@@ -682,6 +682,29 @@ describe("generatePydanticCode", () => {
 
       class Model(BaseModel):
         pass
+      `);
+  });
+
+  test("None annotation with Field annotation", () => {
+    const json = {
+      foo: 5,
+      "bar.Baz": "hello"
+    };
+
+    const result = generatePydanticCode(json, "Model", {
+      indentation: 2,
+      forceOptional: "OnlyRootClass"
+    });
+
+    expect(result).toBe(dedent`
+      from typing import Optional
+
+      from pydantic import BaseModel, Field
+
+
+      class Model(BaseModel):
+        foo: Optional[int] = None
+        bar_Baz: Optional[str] = Field(None, alias='bar.Baz')
       `);
   });
 });

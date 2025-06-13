@@ -75,7 +75,7 @@ describe("generateClass", () => {
     const expected = dedent`
       class ComplexTypeClass(BaseModel):
           tags: List[str]
-          config: Optional[Config]
+          config: Optional[Config] = None
     `;
     expect(generateClass(input)).toBe(expected);
   });

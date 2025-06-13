@@ -139,4 +139,18 @@ describe("getTypingImports", () => {
       )
     );
   });
+
+  test("should handle Field with None annotation", () => {
+    const input = dedent`
+    class Model(BaseModel):
+      foo: Optional[int] = None
+      bar_Baz: Optional[str] = Field(None, alias='bar.Baz')
+    `;
+    const output = getImports(input);
+    expect(output).toBe(dedent`
+      from typing import Optional
+
+      from pydantic import BaseModel, Field
+      `);
+  });
 });
