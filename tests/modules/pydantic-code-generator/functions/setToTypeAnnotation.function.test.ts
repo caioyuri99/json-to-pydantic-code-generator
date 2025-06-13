@@ -121,4 +121,20 @@ describe("setToTypeAnnotation", () => {
       "Optional[Union[List[float], float, str]]"
     );
   });
+
+  test('Should return "List" when ListSet is empty', () => {
+    const ls = new ListSet<string>();
+
+    const result1 = setToTypeAnnotation(ls);
+
+    expect(result1).toBe("List");
+
+    const result2 = setToTypeAnnotation(new TypeSet([ls, "str"]));
+
+    expect(result2).toBe("Union[List, str]");
+
+    const result3 = setToTypeAnnotation(new TypeSet([ls, "Any"]));
+
+    expect(result3).toBe("Optional[List]");
+  });
 });

@@ -7,6 +7,10 @@ function setToTypeAnnotation(s: TypeSet<string> | ListSet<string>): string {
   }
 
   if (s instanceof ListSet) {
+    if (s.size === 0) {
+      return "List";
+    }
+
     if (s.size > 1) {
       return `List[Union[${[...s]
         .map((e) => {

@@ -596,12 +596,13 @@ describe("generatePydanticCode", () => {
   `);
   });
 
-  test("empty object", () => {
+  test("empty object and empty array", () => {
     const json = {
       user: {
         name: "Alice",
         profile: {}
-      }
+      },
+      posts: []
     };
 
     const result = generatePydanticCode(json, "Model", { indentation: 2 });
@@ -621,6 +622,7 @@ describe("generatePydanticCode", () => {
 
       class Model(BaseModel):
         user: User
+        posts: List
       `);
   });
 
