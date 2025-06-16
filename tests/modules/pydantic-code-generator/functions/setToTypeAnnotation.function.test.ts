@@ -137,4 +137,28 @@ describe("setToTypeAnnotation", () => {
 
     expect(result3).toBe("Optional[List]");
   });
+
+  test('Should return "List[Optional[Type]]" when ListSet contains "Any" and other type', () => {
+    const ls = new ListSet<string>(["Any", "str"]);
+
+    const result = setToTypeAnnotation(ls);
+
+    expect(result).toBe("List[Optional[str]]");
+  });
+
+  test('Should return "List[Optional[Union[Type1, Type2, ...]]]" when ListSet contains "Any" and multiple types', () => {
+    const ls = new ListSet<string>(["Any", "str", "int"]);
+
+    const result = setToTypeAnnotation(ls);
+
+    expect(result).toBe("List[Optional[Union[int, str]]]");
+  });
+
+  test('Should return "List[Any]" when ListSet contains only "Any"', () => {
+    const ls = new ListSet(["Any"]);
+
+    const result = setToTypeAnnotation(ls);
+
+    expect(result).toBe("List[Any]");
+  });
 });

@@ -11,26 +11,7 @@ function setToTypeAnnotation(s: TypeSet<string> | ListSet<string>): string {
       return "List";
     }
 
-    if (s.size > 1) {
-      return `List[Union[${[...s]
-        .map((e) => {
-          if (e instanceof ListSet) {
-            return setToTypeAnnotation(e);
-          }
-
-          return e;
-        })
-        .sort()
-        .join(", ")}]]`;
-    }
-
-    const uniqueElement = [...s][0];
-
-    if (uniqueElement instanceof ListSet) {
-      return `List[${setToTypeAnnotation(uniqueElement)}]`;
-    }
-
-    return `List[${uniqueElement}]`;
+    return `List[${setToTypeAnnotation(new Set([...s]))}]`;
   }
 
   if (s.size > 1) {

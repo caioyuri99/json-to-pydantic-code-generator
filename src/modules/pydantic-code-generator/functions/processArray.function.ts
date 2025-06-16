@@ -40,6 +40,12 @@ function processArray(
       return;
     }
 
+    if (v === null) {
+      addType(types, "Any");
+
+      return;
+    }
+
     const className = getClassName(name);
 
     const newName = fromObjectArrayJson
