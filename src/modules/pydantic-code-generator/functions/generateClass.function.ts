@@ -1,3 +1,4 @@
+import { ListSet } from "../classes/ListSet.class";
 import { PYTHON_RESERVED_KEYWORDS } from "../consts/PYTHON_RESERVED_KEYWORDS.const";
 import { ClassModel } from "../types/ClassModel.type";
 import { setToTypeAnnotation } from "./setToTypeAnnotation.function";
@@ -70,7 +71,11 @@ function generateClass(
 
             if (attr.alias) {
               posfix = ` = Field(${attr.type.has("Any") ? "None" : "..."}, alias='${attr.alias}')`;
-            } else if (attr.type.has("Any") && attr.type.size > 1) {
+            } else if (
+              attr.type.has("Any") &&
+              !(attr.type instanceof ListSet) &&
+              attr.type.size > 1
+            ) {
               posfix = " = None";
             }
 

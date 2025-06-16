@@ -709,4 +709,26 @@ describe("generatePydanticCode", () => {
         bar_Baz: Optional[str] = Field(None, alias='bar.Baz')
       `);
   });
+
+  test("array with null and other types", () => {
+    const json = {
+      items: [1, null, "text", { key: "value" }, [1, 2, 3]]
+    };
+
+    const result = generatePydanticCode(json, "Model", { indentation: 2 });
+
+    expect(result).toBe(dedent`
+      from typing import List, Optional, Union
+
+      from pydantic import BaseModel
+
+
+      class Item(BaseModel):
+        key: str
+
+
+      class Model(BaseModel):
+        items: List[Optional[Union[Item, List[int], int, str]]]
+      `);
+  });
 });
