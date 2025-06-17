@@ -8,6 +8,8 @@ describe("generatePydanticCode", () => {
     const result = generatePydanticCode(json);
 
     expect(result).toBe(dedent`
+      from __future__ import annotations
+
       from pydantic import BaseModel
 
 
@@ -29,6 +31,8 @@ describe("generatePydanticCode", () => {
     const result = generatePydanticCode(json);
 
     expect(result).toBe(dedent`
+      from __future__ import annotations
+
       from pydantic import BaseModel
 
 
@@ -57,6 +61,8 @@ describe("generatePydanticCode", () => {
     const result = generatePydanticCode(json);
 
     expect(result).toBe(dedent`
+      from __future__ import annotations
+
       from typing import List
 
       from pydantic import BaseModel
@@ -78,6 +84,8 @@ describe("generatePydanticCode", () => {
     const result = generatePydanticCode(json);
 
     expect(result).toBe(dedent`
+      from __future__ import annotations
+
       from typing import Any
 
       from pydantic import BaseModel
@@ -99,6 +107,8 @@ describe("generatePydanticCode", () => {
     const result = generatePydanticCode(json);
 
     expect(result).toBe(dedent`
+      from __future__ import annotations
+
       from pydantic import BaseModel
 
 
@@ -123,6 +133,8 @@ describe("generatePydanticCode", () => {
     const result = generatePydanticCode(json);
 
     expect(result).toBe(dedent`
+      from __future__ import annotations
+
       from pydantic import BaseModel
 
 
@@ -154,6 +166,8 @@ describe("generatePydanticCode", () => {
     const result = generatePydanticCode(json);
 
     expect(result).toBe(dedent`
+      from __future__ import annotations
+
       from typing import List
 
       from pydantic import BaseModel
@@ -173,6 +187,8 @@ describe("generatePydanticCode", () => {
     const result = generatePydanticCode(json);
 
     expect(result).toBe(dedent`
+      from __future__ import annotations
+
       from typing import Optional
 
       from pydantic import BaseModel
@@ -190,6 +206,8 @@ describe("generatePydanticCode", () => {
     const code = generatePydanticCode(json);
 
     expect(code).toBe(dedent`
+      from __future__ import annotations
+
       from pydantic import BaseModel
 
 
@@ -204,6 +222,8 @@ describe("generatePydanticCode", () => {
     const code = generatePydanticCode(json, "Model", { indentation: 2 });
 
     expect(code).toBe(dedent`
+      from __future__ import annotations
+
       from pydantic import BaseModel
 
 
@@ -218,6 +238,8 @@ describe("generatePydanticCode", () => {
     const code = generatePydanticCode(json, "Model", { indentation: 1 });
 
     expect(code).toBe(dedent`
+      from __future__ import annotations
+
       from pydantic import BaseModel
 
 
@@ -234,6 +256,8 @@ describe("generatePydanticCode", () => {
     console.log(code);
 
     expect(code).toBe(dedent`
+      from __future__ import annotations
+
       from pydantic import BaseModel
 
 
@@ -264,6 +288,8 @@ describe("generatePydanticCode", () => {
     });
 
     expect(code).toBe(dedent`
+      from __future__ import annotations
+
       from pydantic import BaseModel
 
 
@@ -288,6 +314,8 @@ describe("generatePydanticCode", () => {
     });
 
     expect(code).toBe(dedent`
+      from __future__ import annotations
+
       from pydantic import BaseModel
 
 
@@ -311,6 +339,8 @@ describe("generatePydanticCode", () => {
     });
 
     expect(code).toBe(dedent`
+      from __future__ import annotations
+
       from pydantic import BaseModel
 
 
@@ -339,6 +369,8 @@ describe("generatePydanticCode", () => {
     });
 
     expect(code).toBe(dedent`
+      from __future__ import annotations
+
       from pydantic import BaseModel
 
 
@@ -489,12 +521,14 @@ describe("generatePydanticCode", () => {
     });
 
     expect(result).toBe(dedent`
-    from pydantic import BaseModel, Field
+      from __future__ import annotations
+
+      from pydantic import BaseModel, Field
 
 
-    class User(BaseModel):
-      user_name: str = Field(..., alias='userName')
-      email_address: str = Field(..., alias='emailAddress')
+      class User(BaseModel):
+        user_name: str = Field(..., alias='userName')
+        email_address: str = Field(..., alias='emailAddress')
   `);
   });
 
@@ -509,11 +543,13 @@ describe("generatePydanticCode", () => {
     });
 
     expect(result).toBe(dedent`
-    from pydantic import BaseModel
+      from __future__ import annotations
+
+      from pydantic import BaseModel
 
 
-    class User(BaseModel):
-      userName: str
+      class User(BaseModel):
+        userName: str
   `);
   });
 
@@ -529,12 +565,14 @@ describe("generatePydanticCode", () => {
     });
 
     expect(result).toBe(dedent`
-    from pydantic import BaseModel, Field
+      from __future__ import annotations
+
+      from pydantic import BaseModel, Field
 
 
-    class User(BaseModel):
-      user_id: int
-      full_name: str = Field(..., alias='fullName')
+      class User(BaseModel):
+        user_id: int
+        full_name: str = Field(..., alias='fullName')
   `);
   });
 
@@ -552,16 +590,18 @@ describe("generatePydanticCode", () => {
     });
 
     expect(result).toBe(dedent`
-    from pydantic import BaseModel, Field
+      from __future__ import annotations
+
+      from pydantic import BaseModel, Field
 
 
-    class UserInfo(BaseModel):
-      full_name: str = Field(..., alias='fullName')
-      date_of_birth: str = Field(..., alias='dateOfBirth')
+      class UserInfo(BaseModel):
+        full_name: str = Field(..., alias='fullName')
+        date_of_birth: str = Field(..., alias='dateOfBirth')
 
 
-    class Model(BaseModel):
-      user_info: UserInfo = Field(..., alias='userInfo')
+      class Model(BaseModel):
+        user_info: UserInfo = Field(..., alias='userInfo')
   `);
   });
 
@@ -580,19 +620,21 @@ describe("generatePydanticCode", () => {
     });
 
     expect(result).toBe(dedent`
-    from pydantic import BaseModel, Field
+      from __future__ import annotations
+
+      from pydantic import BaseModel, Field
 
 
-    class InnerLayer(BaseModel):
-      some_value: int = Field(..., alias='someValue')
+      class InnerLayer(BaseModel):
+        some_value: int = Field(..., alias='someValue')
 
 
-    class OuterLayer(BaseModel):
-      inner_layer: InnerLayer = Field(..., alias='innerLayer')
+      class OuterLayer(BaseModel):
+        inner_layer: InnerLayer = Field(..., alias='innerLayer')
 
 
-    class Root(BaseModel):
-      outer_layer: OuterLayer = Field(..., alias='outerLayer')
+      class Root(BaseModel):
+        outer_layer: OuterLayer = Field(..., alias='outerLayer')
   `);
   });
 
@@ -610,6 +652,8 @@ describe("generatePydanticCode", () => {
     console.log(result);
 
     expect(result).toBe(dedent`
+      from __future__ import annotations
+
       from typing import Any, Dict
 
       from pydantic import BaseModel
@@ -634,6 +678,8 @@ describe("generatePydanticCode", () => {
     const result = generatePydanticCode(json, "Model", { indentation: 2 });
 
     expect(result).toBe(dedent`
+      from __future__ import annotations
+
       from typing import Any, Dict, List, Union
 
       from pydantic import BaseModel
@@ -658,6 +704,8 @@ describe("generatePydanticCode", () => {
     const result = generatePydanticCode(json, "Model", { indentation: 2 });
 
     expect(result).toBe(dedent`
+      from __future__ import annotations
+
       from typing import List, Optional
 
       from pydantic import BaseModel
@@ -679,6 +727,8 @@ describe("generatePydanticCode", () => {
     const result = generatePydanticCode(json, "Model", { indentation: 2 });
 
     expect(result).toBe(dedent`
+      from __future__ import annotations
+
       from pydantic import BaseModel
 
 
@@ -699,6 +749,8 @@ describe("generatePydanticCode", () => {
     });
 
     expect(result).toBe(dedent`
+      from __future__ import annotations
+
       from typing import Optional
 
       from pydantic import BaseModel, Field
@@ -718,6 +770,8 @@ describe("generatePydanticCode", () => {
     const result = generatePydanticCode(json, "Model", { indentation: 2 });
 
     expect(result).toBe(dedent`
+      from __future__ import annotations
+
       from typing import List, Optional, Union
 
       from pydantic import BaseModel

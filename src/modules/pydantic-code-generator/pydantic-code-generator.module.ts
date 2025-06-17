@@ -50,7 +50,7 @@ function generatePydanticCode(
 
   const imports = getImports(classes);
 
-  return `${imports}\n\n\n${classes}`;
+  return `from __future__ import annotations\n\n${imports}\n\n\n${classes}`;
 }
 
 export { generatePydanticCode };
