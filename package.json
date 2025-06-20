@@ -2,11 +2,14 @@
   "name": "json-to-pydantic-code-generator",
   "version": "1.0.0",
   "main": "./dist/index.js",
-  "types": "./dist/index.d.js",
   "scripts": {
     "test": "jest",
     "build": "tsc",
     "prepare": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/caioyuri99/json-to-pydantic-code-generator.git"
   },
   "keywords": [
     "json",
@@ -14,8 +17,12 @@
     "code-generator",
     "python"
   ],
-  "author": "@caioyuri99",
-  "license": "ISC",
+  "author": "Caio Yuri",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/caioyuri99/json-to-pydantic-code-generator/issues"
+  },
+  "homepage": "https://github.com/caioyuri99/json-to-pydantic-code-generator#readme",
   "description": "Generate Pydantic models from JSON. A TypeScript tool that analyzes JSON structures and outputs fully typed Pydantic model code.",
   "dependencies": {
     "pluralize": "^8.0.0"
