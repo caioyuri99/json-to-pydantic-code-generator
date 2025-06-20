@@ -368,4 +368,37 @@ describe("generateClass", () => {
         last_modified_date: int = Field(..., alias='last-Modified@Date')
       `);
   });
+
+  test("should use tabs for indentation when useTabs is true", () => {
+    const model: ClassModel = {
+      className: "TabClass",
+      attributes: [
+        { name: "id", type: new TypeSet(["int"]) },
+        { name: "name", type: new TypeSet(["str"]) }
+      ]
+    };
+
+    const expected = [
+      "class TabClass(BaseModel):",
+      "\tid: int",
+      "\tname: str"
+    ].join("\n");
+    expect(generateClass(model, 1, false, true)).toBe(expected);
+  });
+
+  test("should use tabs for indentation with complex attributes and useTabs true", () => {
+    const model: ClassModel = {
+      className: "TabComplexClass",
+      attributes: [
+        { name: "tags", type: new ListSet(["str"]) },
+        { name: "config", type: new TypeSet(["Any", "Config"]) }
+      ]
+    };
+    const expected = [
+      "class TabComplexClass(BaseModel):",
+      "\ttags: List[str]",
+      "\tconfig: Optional[Config] = None"
+    ].join("\n");
+    expect(generateClass(model, 1, false, true)).toBe(expected);
+  });
 });

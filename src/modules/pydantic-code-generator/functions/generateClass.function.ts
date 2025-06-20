@@ -3,10 +3,13 @@ import { PYTHON_RESERVED_KEYWORDS } from "../consts/PYTHON_RESERVED_KEYWORDS.con
 import { ClassModel } from "../types/ClassModel.type";
 import { setToTypeAnnotation } from "./setToTypeAnnotation.function";
 
+// TODO: adicionar suporte a indentação com tabs
+
 function generateClass(
   obj: ClassModel,
   indentation: number = 4,
-  aliasCamelCase = false
+  aliasCamelCase = false,
+  useTabs = false
 ): string {
   // handle python reserved keywords
   obj.attributes.map((e) => {
@@ -70,7 +73,9 @@ function generateClass(
             let posfix = "";
 
             if (attr.alias) {
-              posfix = ` = Field(${attr.type.has("Any") ? "None" : "..."}, alias='${attr.alias}')`;
+              posfix = ` = Field(${
+                attr.type.has("Any") ? "None" : "..."
+              }, alias='${attr.alias}')`;
             } else if (
               attr.type.has("Any") &&
               !(attr.type instanceof ListSet) &&
@@ -79,7 +84,9 @@ function generateClass(
               posfix = " = None";
             }
 
-            return `${" ".repeat(indentation)}${attr.name}: ${setToTypeAnnotation(attr.type)}${posfix}`;
+            return `${useTabs ? "\t" : " ".repeat(indentation)}${
+              attr.name
+            }: ${setToTypeAnnotation(attr.type)}${posfix}`;
           })
           .join("\n")
       : `${" ".repeat(indentation)}pass`;

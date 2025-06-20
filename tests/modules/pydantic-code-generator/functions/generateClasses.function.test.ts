@@ -74,8 +74,6 @@ describe("generateClasses", () => {
 
     const result = generateClasses(json, "Root");
 
-    console.dir(serializeClasses(result), { depth: null });
-
     expect(serializeClasses(result)).toEqual(
       serializeClasses([
         {
@@ -297,8 +295,6 @@ describe("generateClasses", () => {
     };
 
     const result = generateClasses(json);
-
-    console.log(result[0]);
 
     expect(serializeClasses(result)).toEqual(
       serializeClasses([
@@ -720,8 +716,6 @@ describe("generateClasses", () => {
 
     const result = generateClasses(json);
 
-    console.dir(serializeClasses(result), { depth: null });
-
     expect(serializeClasses(result)).toEqual(
       serializeClasses([
         {
@@ -866,8 +860,6 @@ describe("generateClasses", () => {
     };
 
     const result = generateClasses(json, "Model", [], true);
-
-    console.dir(serializeClasses(result), { depth: null });
 
     expect(serializeClasses(result)).toEqual(
       serializeClasses([

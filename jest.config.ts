@@ -9,8 +9,7 @@ const config: JestConfigWithTsJest = {
   preset: "ts-jest",
   collectCoverage: true,
   coverageDirectory: "coverage",
-  coverageProvider: "v8"
+  coverageProvider: "babel"
 };
 
 export default config;
-

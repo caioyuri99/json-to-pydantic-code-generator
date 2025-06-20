@@ -253,8 +253,6 @@ describe("generatePydanticCode", () => {
     const json = { name: "John", age: 30 };
     const code = generatePydanticCode(json, "Model", { indentation: 8 });
 
-    console.log(code);
-
     expect(code).toBe(dedent`
       from __future__ import annotations
 
@@ -649,8 +647,6 @@ describe("generatePydanticCode", () => {
 
     const result = generatePydanticCode(json, "Model", { indentation: 2 });
 
-    console.log(result);
-
     expect(result).toBe(dedent`
       from __future__ import annotations
 
@@ -784,5 +780,21 @@ describe("generatePydanticCode", () => {
       class Model(BaseModel):
         items: List[Optional[Union[Item, List[int], int, str]]]
       `);
+  });
+
+  test("generatePydanticCode uses tabs for indentation when useTabs is true", () => {
+    const json = { name: "John", age: 30 };
+    const code = generatePydanticCode(json, "Model", { useTabs: true });
+    const expected = dedent`
+      from __future__ import annotations
+
+      from pydantic import BaseModel
+
+
+      class Model(BaseModel):
+      \tname: str
+      \tage: int
+    `;
+    expect(code).toBe(expected);
   });
 });
