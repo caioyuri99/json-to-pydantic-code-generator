@@ -1,6 +1,6 @@
-import { ClassModel } from "../types/ClassModel.type";
-import { mergeAttributes } from "./mergeAttributes.function";
-import { setOptional } from "./setOptional.function";
+import { ClassModel } from "../types/ClassModel.type.js";
+import { mergeAttributes } from "./mergeAttributes.function.js";
+import { setOptional } from "./setOptional.function.js";
 
 function mergeClasses(classes: ClassModel[]): ClassModel[] {
   const res: ClassModel[] = [];

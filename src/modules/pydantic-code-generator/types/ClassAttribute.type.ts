@@ -1,5 +1,5 @@
-import { ListSet } from "../classes/ListSet.class";
-import { TypeSet } from "../classes/TypeSet.class";
+import { ListSet } from "../classes/ListSet.class.js";
+import { TypeSet } from "../classes/TypeSet.class.js";
 
 type ClassAttribute = {
   name: string;

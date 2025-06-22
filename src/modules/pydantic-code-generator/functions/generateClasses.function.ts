@@ -1,14 +1,14 @@
-import { ClassModel } from "../types/ClassModel.type";
-import { getType } from "./getType.function";
-import { processArray } from "./processArray.function";
-import { ClassAttribute } from "../types/ClassAttribute.type";
+import { ClassModel } from "../types/ClassModel.type.js";
+import { getType } from "./getType.function.js";
+import { processArray } from "./processArray.function.js";
+import { ClassAttribute } from "../types/ClassAttribute.type.js";
 import {
   getClassName,
   getNonDuplicateName,
   hasOwnProperties
-} from "../utils/utils.module";
-import { TypeSet } from "../classes/TypeSet.class";
-import { reuseClasses } from "./reuseClasses.function";
+} from "../utils/utils.module.js";
+import { TypeSet } from "../classes/TypeSet.class.js";
+import { reuseClasses } from "./reuseClasses.function.js";
 
 function generateClasses(
   json: any,

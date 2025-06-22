@@ -1,6 +1,6 @@
-import { ClassAttribute } from "../types/ClassAttribute.type";
-import { ClassModel } from "../types/ClassModel.type";
-import { equalTypes, hasType, replaceType } from "../utils/utils.module";
+import { ClassAttribute } from "../types/ClassAttribute.type.js";
+import { ClassModel } from "../types/ClassModel.type.js";
+import { equalTypes, hasType, replaceType } from "../utils/utils.module.js";
 
 function reuseClasses(
   oldClasses: ClassModel[],

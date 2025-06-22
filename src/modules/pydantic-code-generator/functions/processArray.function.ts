@@ -1,6 +1,6 @@
-import { ListSet } from "../classes/ListSet.class";
-import { ClassAttribute } from "../types/ClassAttribute.type";
-import { ClassModel } from "../types/ClassModel.type";
+import { ListSet } from "../classes/ListSet.class.js";
+import { ClassAttribute } from "../types/ClassAttribute.type.js";
+import { ClassModel } from "../types/ClassModel.type.js";
 import {
   addType,
   getArrayClassName,
@@ -8,10 +8,10 @@ import {
   getNonDuplicateName,
   hasType,
   replaceType
-} from "../utils/utils.module";
-import { generateClasses } from "./generateClasses.function";
-import { getType } from "./getType.function";
-import { mergeClasses } from "./mergeClasses.function";
+} from "../utils/utils.module.js";
+import { generateClasses } from "./generateClasses.function.js";
+import { getType } from "./getType.function.js";
+import { mergeClasses } from "./mergeClasses.function.js";
 
 function processArray(
   value: any[],

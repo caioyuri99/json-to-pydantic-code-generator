@@ -1,5 +1,5 @@
-import { ClassModel } from "../types/ClassModel.type";
-import { mergeTypes } from "./mergeTypes.function";
+import { ClassModel } from "../types/ClassModel.type.js";
+import { mergeTypes } from "./mergeTypes.function.js";
 
 function mergeAttributes(classModel: ClassModel, existingClass: ClassModel) {
   for (const attr of classModel.attributes) {

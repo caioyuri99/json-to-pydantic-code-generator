@@ -1,5 +1,5 @@
-import { ListSet } from "../classes/ListSet.class";
-import { TypeSet } from "../classes/TypeSet.class";
+import { ListSet } from "../classes/ListSet.class.js";
+import { TypeSet } from "../classes/TypeSet.class.js";
 
 function setToTypeAnnotation(s: TypeSet<string> | ListSet<string>): string {
   if (s.has("int") && s.has("float")) {

@@ -1,6 +1,6 @@
-import { ListSet } from "../classes/ListSet.class";
-import { TypeSet } from "../classes/TypeSet.class";
-import { addType } from "../utils/utils.module";
+import { ListSet } from "../classes/ListSet.class.js";
+import { TypeSet } from "../classes/TypeSet.class.js";
+import { addType } from "../utils/utils.module.js";
 
 function mergeTypes(
   oldTypes: TypeSet<string> | ListSet<string>,

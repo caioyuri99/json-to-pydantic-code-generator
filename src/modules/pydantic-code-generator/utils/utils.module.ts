@@ -1,8 +1,8 @@
-import { ListSet } from "../classes/ListSet.class";
-import { TypeSet } from "../classes/TypeSet.class";
-import { PYTHON_RESERVED_KEYWORDS } from "../consts/PYTHON_RESERVED_KEYWORDS.const";
-import { setToTypeAnnotation } from "../functions/setToTypeAnnotation.function";
-import { ClassModel } from "../types/ClassModel.type";
+import { ListSet } from "../classes/ListSet.class.js";
+import { TypeSet } from "../classes/TypeSet.class.js";
+import { PYTHON_RESERVED_KEYWORDS } from "../consts/PYTHON_RESERVED_KEYWORDS.const.js";
+import { setToTypeAnnotation } from "../functions/setToTypeAnnotation.function.js";
+import { ClassModel } from "../types/ClassModel.type.js";
 import pluralize from "pluralize";
 
 function nonCommonElements<T>(lists: T[][]): T[] {

@@ -1,9 +1,7 @@
-import { ListSet } from "../classes/ListSet.class";
-import { PYTHON_RESERVED_KEYWORDS } from "../consts/PYTHON_RESERVED_KEYWORDS.const";
-import { ClassModel } from "../types/ClassModel.type";
-import { setToTypeAnnotation } from "./setToTypeAnnotation.function";
-
-// TODO: adicionar suporte a indentação com tabs
+import { ListSet } from "../classes/ListSet.class.js";
+import { PYTHON_RESERVED_KEYWORDS } from "../consts/PYTHON_RESERVED_KEYWORDS.const.js";
+import { ClassModel } from "../types/ClassModel.type.js";
+import { setToTypeAnnotation } from "./setToTypeAnnotation.function.js";
 
 function generateClass(
   obj: ClassModel,

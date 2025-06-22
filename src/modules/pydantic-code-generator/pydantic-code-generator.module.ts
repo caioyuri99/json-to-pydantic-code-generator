@@ -1,9 +1,9 @@
-import { ListSet } from "./classes/ListSet.class";
-import { TypeSet } from "./classes/TypeSet.class";
-import { generateClass } from "./functions/generateClass.function";
-import { generateClasses } from "./functions/generateClasses.function";
-import { getImports } from "./functions/getImports.function";
-import { ClassAttribute } from "./types/ClassAttribute.type";
+import { ListSet } from "./classes/ListSet.class.js";
+import { TypeSet } from "./classes/TypeSet.class.js";
+import { generateClass } from "./functions/generateClass.function.js";
+import { generateClasses } from "./functions/generateClasses.function.js";
+import { getImports } from "./functions/getImports.function.js";
+import { ClassAttribute } from "./types/ClassAttribute.type.js";
 
 function addAny(attr: ClassAttribute): void {
   if (attr.type instanceof ListSet) {

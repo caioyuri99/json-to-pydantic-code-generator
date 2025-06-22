@@ -1,2 +1,5 @@
 src/tests
 *.test.ts
+coverage
+jest.config.ts
+tsconfig.json

@@ -1,7 +1,7 @@
-import { ListSet } from "../classes/ListSet.class";
-import { TypeSet } from "../classes/TypeSet.class";
-import { ClassModel } from "../types/ClassModel.type";
-import { addType, nonCommonElements } from "../utils/utils.module";
+import { ListSet } from "../classes/ListSet.class.js";
+import { TypeSet } from "../classes/TypeSet.class.js";
+import { ClassModel } from "../types/ClassModel.type.js";
+import { addType, nonCommonElements } from "../utils/utils.module.js";
 
 function setOptional(classes: ClassModel[], classModel: ClassModel) {
   const optionalAttrs = nonCommonElements(

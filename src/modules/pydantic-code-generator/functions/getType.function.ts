@@ -1,4 +1,4 @@
-import { hasOwnProperties } from "../utils/utils.module";
+import { hasOwnProperties } from "../utils/utils.module.js";
 
 function getType(value: any): string {
   switch (typeof value) {

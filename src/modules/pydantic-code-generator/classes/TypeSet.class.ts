@@ -1,4 +1,4 @@
-import { ListSet } from "./ListSet.class";
+import { ListSet } from "./ListSet.class.js";
 
 class TypeSet<T> extends Set<T | ListSet<T>> {
   toString(): string {

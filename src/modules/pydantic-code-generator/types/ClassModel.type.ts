@@ -1,4 +1,4 @@
-import { ClassAttribute } from "./ClassAttribute.type";
+import { ClassAttribute } from "./ClassAttribute.type.js";
 
 type ClassModel = {
   className: string;
