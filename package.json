@@ -2,11 +2,13 @@
   "name": "json-to-pydantic-code-generator",
   "version": "1.0.0",
   "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "test": "jest",
     "build": "tsc",
     "prepare": "npm run build"
   },
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/caioyuri99/json-to-pydantic-code-generator.git"

@@ -13,6 +13,20 @@ function addAny(attr: ClassAttribute): void {
   attr.type.add("Any");
 }
 
+/**
+ * Generates Python Pydantic code from a JSON object.
+ * Allows customization of class name, indentation, tab usage, aliases, and optional attribute handling.
+ *
+ * @param json Input object (or object array).
+ * @param name Root class name (default: "Model").
+ * @param flags Generation options:
+ *   - indentation: Number of spaces for indentation (default: 4). NOTE: the tab size is defined by the environment in which the string is displayed, i.e. this flag has no effect when "useTabs" is "true".
+ *   - preferClassReuse: Reuse identical class definitions (default: false).
+ *   - forceOptional: Make attributes optional ("None", "OnlyRootClass", "AllClasses").
+ *   - aliasCamelCase: Use camelCase aliases for fields (default: false).
+ *   - useTabs: Use tabs instead of spaces for indentation (default: false).
+ * @returns Python Pydantic code as a string.
+ */
 function generatePydanticCode(
   json: any,
   name = "Model",
