@@ -1,14 +1,12 @@
 {
   "name": "json-to-pydantic-code-generator",
   "version": "1.0.0",
-  "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
-  "types": "dist/esm/index.d.ts",
+  "main": "dist/cindex.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
   "scripts": {
     "test": "jest",
-    "build": "npm run build:esm && npm run build:cjs",
-    "build:esm": "tsc -p tsconfig.esm.json",
-    "build:cjs": "tsc -p tsconfig.cjs.json",
+    "build": "tsup",
     "prepare": "npm run build"
   },
   "type": "module",
@@ -30,7 +28,6 @@
   "homepage": "https://github.com/caioyuri99/json-to-pydantic-code-generator#readme",
   "description": "Generate Pydantic models from JSON. A TypeScript tool that analyzes JSON structures and outputs fully typed Pydantic model code.",
   "dependencies": {
-    "@jest/globals": "^30.0.2",
     "pluralize": "^8.0.0"
   },
   "devDependencies": {
@@ -44,8 +41,9 @@
   },
   "exports": {
     ".": {
-      "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js"
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
     }
   },
   "files": [
