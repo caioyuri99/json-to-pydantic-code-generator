@@ -9,6 +9,7 @@ import {
 } from "../utils/utils.module.js";
 import { TypeSet } from "../classes/TypeSet.class.js";
 import { reuseClasses } from "./reuseClasses.function.js";
+import { MalformedJSONError } from "../errors/MalformedJSONError.error.js";
 
 function generateClasses(
   json: any,
@@ -27,7 +28,9 @@ function generateClasses(
       json.some((e) => typeof e !== "object" || Array.isArray(e)) ||
       json.length === 0
     ) {
-      throw new Error("Input must be an object or an array of objects");
+      throw new MalformedJSONError(
+        "Input must be an object or an array of objects"
+      );
     }
 
     return processArray(json, undefined, undefined, true).generatedClassModels;

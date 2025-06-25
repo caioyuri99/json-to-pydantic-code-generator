@@ -9,7 +9,7 @@ const config: JestConfigWithTsJest = {
   preset: "ts-jest/presets/default-esm",
   collectCoverage: true,
   coverageDirectory: "coverage",
-  coverageProvider: "v8",
+  coverageProvider: "babel",
   testPathIgnorePatterns: ["/node_modules/"],
   transform: {},
   moduleNameMapper: {

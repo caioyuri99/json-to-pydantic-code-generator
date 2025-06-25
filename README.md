@@ -25,6 +25,13 @@ npm install json-to-pydantic-code-generator
 ```typescript
 import { generatePydanticCode } from "json-to-pydantic-code-generator";
 
+// Also available: error classes for better error handling
+import { 
+  InvalidIndentationError, 
+  InvalidJSONString, 
+  MalformedJSONError 
+} from "json-to-pydantic-code-generator";
+
 const json = {
   "user": {
     "id": 123,
@@ -45,6 +52,7 @@ const json = {
   "createdAt": "2025-06-20T12:00:00Z"
 };
 
+// Accepts JSON objects, arrays, or JSON strings
 const code = generatePydanticCode(json, "Root", {
   indentation: 2,
   forceOptional: "OnlyRootClass",
@@ -93,10 +101,27 @@ class Root(BaseModel):
 
 ## Flags
 
-- `indentation` (number): Number of spaces for indentation (default: 4)
+- `indentation` (number): Number of spaces for indentation (default: 4) (NOTE: this flag has no effect if `useTabs` is set to `true`, in which case it will use a single tab character for indentation. The tab size is determined by the environment or editor settings.)
 - `preferClassReuse` (boolean): Reuse identical class definitions (default: false)
 - `forceOptional` ("None" | "OnlyRootClass" | "AllClasses"): Make fields optional in the root or all classes (default: "None")
 - `aliasCamelCase` (boolean): Use snake_case for field names and set original names as aliases (default: false)
+- `useTabs` (boolean): Use tabs instead of spaces for indentation (default: false)
+
+## Error Handling
+
+The package exports custom error classes for better error handling:
+
+```typescript
+try {
+  const code = generatePydanticCode('invalid json', 'Model');
+} catch (error) {
+  if (error instanceof InvalidJSONString) {
+    console.log('Invalid JSON string provided');
+  } else if (error instanceof InvalidIndentationError) {
+    console.log('Invalid indentation value');
+  }
+}
+```
 
 ## Output Examples for Each Flag
 

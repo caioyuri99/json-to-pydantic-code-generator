@@ -269,14 +269,14 @@ describe("generatePydanticCode", () => {
     const json = { name: "John", age: 30 };
     expect(() =>
       generatePydanticCode(json, "Model", { indentation: 0 })
-    ).toThrow("ERROR: Indentation must be greater than 0");
+    ).toThrow("Indentation must be greater than 0");
   });
 
   test("generatePydanticCode throws error if indentation is negative", () => {
     const json = { name: "John", age: 30 };
     expect(() =>
       generatePydanticCode(json, "Model", { indentation: -2 })
-    ).toThrow("ERROR: Indentation must be greater than 0");
+    ).toThrow("Indentation must be greater than 0");
   });
 
   test("preferClassReuse as false", () => {
@@ -796,5 +796,126 @@ describe("generatePydanticCode", () => {
       \tage: int
     `;
     expect(code).toBe(expected);
+  });
+
+  test("should generate Pydantic code from valid JSON string", () => {
+    const jsonString = '{"id": 1, "name": "Alice", "active": true}';
+    const result = generatePydanticCode(jsonString);
+
+    expect(result).toBe(dedent`
+      from __future__ import annotations
+
+      from pydantic import BaseModel
+
+
+      class Model(BaseModel):
+          id: int
+          name: str
+          active: bool
+    `);
+  });
+
+  test("should generate Pydantic code from JSON string with nested objects", () => {
+    const jsonString =
+      '{"user": {"id": 1, "profile": {"age": 30, "city": "New York"}}}';
+    const result = generatePydanticCode(jsonString, "Root");
+
+    expect(result).toBe(dedent`
+      from __future__ import annotations
+
+      from pydantic import BaseModel
+
+
+      class Profile(BaseModel):
+          age: int
+          city: str
+
+
+      class User(BaseModel):
+          id: int
+          profile: Profile
+
+
+      class Root(BaseModel):
+          user: User
+    `);
+  });
+
+  test("should generate Pydantic code from JSON string with arrays", () => {
+    const jsonString = '{"items": ["apple", "banana", "cherry"], "count": 3}';
+    const result = generatePydanticCode(jsonString);
+
+    expect(result).toBe(dedent`
+      from __future__ import annotations
+
+      from typing import List
+
+      from pydantic import BaseModel
+
+
+      class Model(BaseModel):
+          items: List[str]
+          count: int
+    `);
+  });
+
+  test("should generate Pydantic code from JSON array string", () => {
+    const jsonString = '[{"id": 1, "name": "Alice"}, {"id": 2, "name": "Bob"}]';
+    const result = generatePydanticCode(jsonString);
+
+    expect(result).toBe(dedent`
+      from __future__ import annotations
+
+      from pydantic import BaseModel
+
+
+      class Model(BaseModel):
+          id: int
+          name: str
+    `);
+  });
+
+  test("should throw error for invalid JSON string", () => {
+    const invalidJsonString = '{"name": "John", "age": 30,}'; // trailing comma
+
+    expect(() => generatePydanticCode(invalidJsonString)).toThrow();
+  });
+
+  test("should throw error for malformed JSON string", () => {
+    const malformedJsonString = '{"name": "John", "age":}'; // missing value
+
+    expect(() => generatePydanticCode(malformedJsonString)).toThrow();
+  });
+
+  test("should throw error for non-JSON string", () => {
+    const nonJsonString = "this is not json";
+
+    expect(() => generatePydanticCode(nonJsonString)).toThrow();
+  });
+
+  test("should throw error for empty string", () => {
+    const emptyString = "";
+
+    expect(() => generatePydanticCode(emptyString)).toThrow();
+  });
+
+  test("should handle JSON string with special characters and options", () => {
+    const jsonString =
+      '{"userName": "Alice", "emailAddress": "alice@example.com"}';
+    const result = generatePydanticCode(jsonString, "User", {
+      aliasCamelCase: true,
+      indentation: 2
+    });
+
+    expect(result).toBe(dedent`
+      from __future__ import annotations
+
+      from pydantic import BaseModel, Field
+
+
+      class User(BaseModel):
+        user_name: str = Field(..., alias='userName')
+        email_address: str = Field(..., alias='emailAddress')
+    `);
   });
 });
